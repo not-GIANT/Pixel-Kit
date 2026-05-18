@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Icon.png" width="120" height="120">
+  <img src="Icon.png" width="200" height="200">
 </p>
 
 <h1 align="center">Pixel Kit</h1>
