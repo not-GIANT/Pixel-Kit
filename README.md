@@ -73,8 +73,10 @@
 ---
 
 ## 📸 Screenshots
+<img width="1378" height="976" alt="Dark" src="https://github.com/user-attachments/assets/68ece3b2-4700-40cb-8b43-8fff5c7d328c" />
+<img width="1378" height="976" alt="Light" src="https://github.com/user-attachments/assets/a745b7fa-bf89-4696-8801-fabdafdeb514" />
+<img width="1378" height="976" alt="Partition" src="https://github.com/user-attachments/assets/a574c70b-96c3-4332-bc24-aa390d0194ad" />
 
-*(Add your screenshots here to make the README even more professional!)*
 
 ---
 
