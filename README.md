@@ -1,10 +1,24 @@
-# <img src="Icon.png" width="40" height="40" align="center"> Pixel Kit
+<p align="center">
+  <img src="Icon.png" width="120" height="120">
+</p>
 
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![CustomTkinter](https://img.shields.io/badge/UI-CustomTkinter-blue?style=for-the-badge)](https://github.com/TomSchimansky/CustomTkinter)
-[![Platform](https://img.shields.io/badge/Platform-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://www.microsoft.com/windows)
+<h1 align="center">Pixel Kit</h1>
 
-**Pixel Kit** is a modern, streamlined ADB & Fastboot toolkit designed for Android enthusiasts and developers. It provides a powerful graphical interface to execute complex terminal commands with a single click, ensuring safety and efficiency during device maintenance or customization.
+<p align="center">
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://github.com/TomSchimansky/CustomTkinter">
+    <img src="https://img.shields.io/badge/UI-CustomTkinter-blue?style=for-the-badge" alt="CustomTkinter">
+  </a>
+  <a href="https://www.microsoft.com/windows">
+    <img src="https://img.shields.io/badge/Platform-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Platform">
+  </a>
+</p>
+
+<p align="center">
+  <strong>Pixel Kit</strong> is a modern, streamlined ADB & Fastboot toolkit designed for Android enthusiasts and developers. It provides a powerful graphical interface to execute complex terminal commands with a single click, ensuring safety and efficiency during device maintenance or customization.
+</p>
 
 ---
 
