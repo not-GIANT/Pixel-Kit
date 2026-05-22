@@ -140,7 +140,7 @@ Pixel Kit performs low-level operations on your Android device. Unlocking bootlo
 
 ## 🗺️ Roadmap
 
-- [ ] macOS / Linux support
+- [ ] Linux support
 - [ ] Device profile presets (save common flash configs)
 - [ ] Batch flashing — flash multiple partitions in sequence from a manifest
 - [ ] OTA package sideload automation
