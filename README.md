@@ -1,92 +1,159 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/banner.svg" width="100%" alt="Pixel Kit Banner">
+
+![Pixel Kit Banner](banner.svg)
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![CustomTkinter](https://img.shields.io/badge/UI-CustomTkinter-blue?style=flat-square)](https://github.com/TomSchimansky/CustomTkinter)
+[![Platform](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square&logo=windows&logoColor=white)](https://github.com/not-GIANT/Pixel-Kit/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Release](https://img.shields.io/badge/Release-v1.0-success?style=flat-square)](https://github.com/not-GIANT/Pixel-Kit/releases/tag/latest)
+
+*A modern GUI toolkit for ADB & Fastboot — complex Android operations, one click away.*
+
+[**⬇ Download .exe**](https://github.com/not-GIANT/Pixel-Kit/releases/tag/latest) · [**📖 Installation**](#-installation) · [**📸 Screenshots**](#-screenshots)
+
 </div>
 
-<h1 align="center">Pixel Kit</h1>
+---
 
-<p align="center">
-  <a href="https://www.python.org/">
-    <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  </a>
-  <a href="https://github.com/TomSchimansky/CustomTkinter">
-    <img src="https://img.shields.io/badge/UI-CustomTkinter-blue?style=for-the-badge" alt="CustomTkinter">
-  </a>
-  <a href="https://www.microsoft.com/windows">
-    <img src="https://img.shields.io/badge/Platform-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Platform">
-  </a>
-</p>
+## What Is This?
 
-<p align="center">
-  <strong>Pixel Kit</strong> is a modern, streamlined ADB & Fastboot toolkit designed for Android enthusiasts and developers. It provides a powerful graphical interface to execute complex terminal commands with a single click, ensuring safety and efficiency during device maintenance or customization.
-</p>
+Pixel Kit puts a clean graphical interface on top of ADB and Fastboot — the two command-line tools Android developers and enthusiasts use for everything from sideloading APKs to flashing firmware partitions. Instead of memorizing syntax and typing commands by hand, you click a button.
+
+It covers device management, partition flashing (30+ partitions), bootloader control, file transfer, app management, screen mirroring via Scrcpy, and advanced tools like EFS reset and Qualcomm Diag Mode — all with live device polling, threaded output, and a console you can stop mid-operation.
+
+> **Designed for Android enthusiasts and developers who want power without the terminal friction.**
 
 ---
 
-## ✨ Features
+## ✦ Features
 
 ### 📱 ADB Operations
-*   **File Management:** Seamlessly push or pull files with dynamic path support.
-*   **App Management:** One-click APK installation, uninstallation, and sideloading.
-*   **Power Menu:** Quick reboot to System, Bootloader, Recovery, or EDL mode.
-*   **Screen Mirroring:** Integrated **Scrcpy** support for high-performance device mirroring.
-*   **Advanced Tools:** Qualcomm Diag Mode enabler and EFS partition resetting (Root required).
+
+| Feature | Description |
+|---|---|
+| **File Transfer** | Push and pull files with dynamic path support |
+| **App Management** | One-click APK install, uninstall, and sideload |
+| **Power Menu** | Reboot to System, Bootloader, Recovery, or EDL mode |
+| **Screen Mirroring** | Integrated Scrcpy support for high-performance device mirroring |
+| **Advanced Tools** | Qualcomm Diag Mode enabler · EFS partition reset *(root required)* |
 
 ### ⚡ Fastboot Operations
-*   **Bootloader Control:** Easy Unlocking and Locking (support for Modern/Pixel and Legacy devices).
-*   **Maintenance:** Erase Cache, FRP, or perform a full User Data Wipe.
-*   **Slot Management:** Switch active A/B slots and retrieve exhaustive device info.
-*   **Live Boot:** Temporarily boot from `.img` files without flashing.
 
-### 🛠️ Flashing Arsenal
-*   Dedicated support for **30+ specific Android partitions** (boot, system, recovery, vbmeta, etc.).
-*   Pre-configured safety checks to prevent syntax errors during flashing.
+| Feature | Description |
+|---|---|
+| **Bootloader Control** | Lock/unlock with support for both Modern/Pixel and Legacy devices |
+| **Maintenance** | Erase Cache, wipe FRP, or perform a full user data wipe |
+| **Slot Management** | Switch active A/B slots and pull detailed device info |
+| **Live Boot** | Boot temporarily from a `.img` file without flashing |
 
-### 🎨 Modern UX/UI
-*   **Adaptive Themes:** Support for Light, Dark, and System modes.
-*   **Real-time Tracking:** Live device connection polling and status indicator.
-*   **Command Matrix:** Threaded console output with "Stop" functionality for active processes.
+### 🔧 Partition Flashing
 
----
+- Dedicated support for **30+ Android partitions** — `boot`, `system`, `recovery`, `vbmeta`, `vendor`, `dtbo`, and more
+- Pre-configured safety checks to prevent syntax errors during flashing operations
 
-## 🚀 Installation & Usage
+### 🎨 UI & UX
 
-### Option 1: Standalone Executable (Recommended)
-1.  Navigate to the `dist/Pixel Kit/` folder.
-2.  Launch `Pixel Kit.exe`.
-3.  *Note: This version is optimized for speed and includes all required drivers and tools.*
-
-### Option 2: Running from Source
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/not-GIANT/Pixel-Kit.git
-    cd Pixel-Kit
-    ```
-2.  **Install dependencies:**
-    ```bash
-    pip install customtkinter pillow
-    ```
-3.  **Run the application:**
-    ```bash
-    python "Pixel Kit.py"
-    ```
+- **Themes** — Light, Dark, and System-adaptive modes
+- **Live Device Polling** — Real-time connection status indicator
+- **Threaded Console** — Command output streams live; stop any process mid-run
 
 ---
 
 ## 📸 Screenshots
-<img width="1378" height="976" alt="Dark" src="https://github.com/user-attachments/assets/68ece3b2-4700-40cb-8b43-8fff5c7d328c" />
-<img width="1378" height="976" alt="Light" src="https://github.com/user-attachments/assets/a745b7fa-bf89-4696-8801-fabdafdeb514" />
-<img width="1378" height="976" alt="Partition" src="https://github.com/user-attachments/assets/a574c70b-96c3-4332-bc24-aa390d0194ad" />
 
+<div align="center">
+
+| Dark Mode | Light Mode |
+|:---:|:---:|
+| ![Dark](screenshots/dark.png) | ![Light](screenshots/light.png) |
+
+| Partition Flashing | |
+|:---:|:---:|
+| ![Partition](screenshots/partition.png) | |
+
+</div>
+
+---
+
+## ⬇ Installation
+
+### Option A — Standalone Executable *(Recommended)*
+
+No Python or dependencies needed.
+
+1. Go to [**Releases**](https://github.com/not-GIANT/Pixel-Kit/releases/tag/latest)
+2. Download and extract the release archive
+3. Run `Pixel Kit.exe` from the `dist/Pixel Kit/` folder
+
+### Option B — Run from Source
+
+**Prerequisites:** Python 3.10+
+
+```bash
+# Clone the repository
+git clone https://github.com/not-GIANT/Pixel-Kit.git
+cd Pixel-Kit
+
+# Install dependencies
+pip install customtkinter pillow
+
+# Launch
+python "Pixel Kit.py"
+```
+
+> ADB and Fastboot binaries are included in the `platform-tools/` folder — no separate SDK download required.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Language** | Python 3.10+ |
+| **GUI Framework** | CustomTkinter |
+| **Android Bridge** | ADB & Fastboot (bundled platform-tools) |
+| **Screen Mirror** | Scrcpy |
+| **Packaging** | PyInstaller |
+
+---
+
+## 🗂️ Project Structure
+
+```
+Pixel-Kit/
+├── Pixel Kit.py        ← Main application — all UI, ADB, Fastboot logic
+├── platform-tools/     ← Bundled ADB & Fastboot binaries
+├── Icon.png            ← Application icon
+└── README.md
+```
 
 ---
 
 ## ⚠️ Disclaimer
-**Pixel Kit** performs low-level operations on your Android device. Modifying partitions, unlocking bootloaders, or wiping EFS data can potentially brick your device. 
-**Use this tool at your own risk.** The developers are not responsible for any data loss or hardware damage.
+
+Pixel Kit performs low-level operations on your Android device. Unlocking bootloaders, flashing partitions, and wiping EFS data can permanently damage or brick your device if used incorrectly.
+
+**Use this tool at your own risk.** Always back up your data before proceeding. The developer is not responsible for data loss, device damage, or warranty voidance.
 
 ---
 
-## 👨‍💻 Author
-**Coded with ❤️ by GIANT**
+## 🗺️ Roadmap
 
-If you find this tool useful, feel free to ⭐ the repository!
+- [ ] macOS / Linux support
+- [ ] Device profile presets (save common flash configs)
+- [ ] Batch flashing — flash multiple partitions in sequence from a manifest
+- [ ] OTA package sideload automation
+- [ ] Built-in ADB log viewer / logcat tab
+
+---
+
+<div align="center">
+
+---
+
+*Developed with ❤️ by [**GIANT**](https://github.com/not-GIANT)*
+
+*If it saved you a headache, drop a ⭐*
+
+</div>
