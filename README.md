@@ -1,6 +1,6 @@
-<p align="center">
-  <img src="Icon.png" width="200" height="200">
-</p>
+<div align="center">
+<img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/banner.svg" width="100%" alt="Pixel Kit Banner">
+</div>
 
 <h1 align="center">Pixel Kit</h1>
 
