@@ -52,6 +52,12 @@ It covers device management, partition flashing (30+ partitions), bootloader con
 - Dedicated support for **30+ Android partitions** — `boot`, `system`, `recovery`, `vbmeta`, `vendor`, `dtbo`, and more
 - Pre-configured safety checks to prevent syntax errors during flashing operations
 
+### 🛠️ CPID IMEI Repair
+
+- Dedicated repair interface for **Pixel 7, 8, and 9 series** devices
+- Fully automated 10-step sequence — partition pulling, binary patching, and modem synchronization
+- Mandatory legal warning and automated root-access check before any operation begins
+
 ### 🎨 UI & UX
 
 - **Themes** — Light, Dark, and System-adaptive modes
@@ -68,9 +74,9 @@ It covers device management, partition flashing (30+ partitions), bootloader con
 |:---:|:---:|
 | ![Dark](screenshots/dark.png) | ![Light](screenshots/light.png) |
 
-| Partition Flashing | |
+| Partition Flashing | CPID IMEI Repair |
 |:---:|:---:|
-| ![Partition](screenshots/partition.png) | |
+| ![Partition](screenshots/partition.png) | ![CPID](screenshots/cpid.png) |
 
 </div>
 
