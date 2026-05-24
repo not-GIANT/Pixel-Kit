@@ -89,8 +89,8 @@ It covers device management, partition flashing (30+ partitions), bootloader con
 No Python or dependencies needed.
 
 1. Go to [**Releases**](https://github.com/not-GIANT/Pixel-Kit/releases/tag/latest)
-2. Download and extract the release archive
-3. Run `Pixel Kit.exe` from the `dist/Pixel Kit/` folder
+2. Download the latest standalone EXE fil
+3. Run `Pixel Kit.exe` and thats it. No need to install anything. 
 
 ### Option B — Run from Source
 
