@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Release](https://img.shields.io/badge/Release-v1.0-success?style=flat-square)](https://github.com/not-GIANT/Pixel-Kit/releases/tag/latest)
 
-*A modern GUI toolkit for ADB & Fastboot — complex Android operations, one click away.*
+*A modern GUI toolkit for ADB & Fastboot. Complex Android operations, one click away.*
 
 [**⬇ Download .exe**](https://github.com/not-GIANT/Pixel-Kit/releases/tag/latest) · [**📖 Installation**](#-installation) · [**📸 Screenshots**](#-screenshots)
 
