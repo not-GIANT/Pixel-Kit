@@ -18,9 +18,9 @@
 
 ## What Is This?
 
-Pixel Kit puts a clean graphical interface on top of ADB and Fastboot — the two command-line tools Android developers and enthusiasts use for everything from sideloading APKs to flashing firmware partitions. Instead of memorizing syntax and typing commands by hand, you click a button.
+Pixel Kit puts a clean graphical interface on top of ADB and Fastboot the two command-line tools Android developers and enthusiasts use for everything from sideloading APKs to flashing firmware partitions. Instead of memorizing syntax and typing commands by hand, you click a button.
 
-It covers device management, partition flashing (30+ partitions), bootloader control, file transfer, app management, screen mirroring via Scrcpy, and advanced tools like EFS reset and Qualcomm Diag Mode — all with live device polling, threaded output, and a console you can stop mid-operation.
+It covers device management, partition flashing (30+ partitions), bootloader control, file transfer, app management, screen mirroring via Scrcpy, and advanced tools like EFS reset and Qualcomm Diag Mode, all with live device polling, threaded output, and a console you can stop mid-operation.
 
 > **Designed for Android enthusiasts and developers who want power without the terminal friction.**
 
