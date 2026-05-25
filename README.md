@@ -55,7 +55,7 @@ It covers device management, partition flashing (30+ partitions), bootloader con
 ### 🛠️ CPID IMEI Repair
 
 - Dedicated repair interface for **Pixel 7, 8, and 9 series** devices
-- Fully automated 10-step sequence — partition pulling, binary patching, and modem synchronization
+- Fully automated 10-step sequence, partition pulling, binary patching, and modem synchronization
 - Mandatory legal warning and automated root-access check before any operation begins
 
 ### 🎨 UI & UX
