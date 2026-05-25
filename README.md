@@ -49,7 +49,7 @@ It covers device management, partition flashing (30+ partitions), bootloader con
 
 ### 🔧 Partition Flashing
 
-- Dedicated support for **30+ Android partitions** — `boot`, `system`, `recovery`, `vbmeta`, `vendor`, `dtbo`, and more
+- Dedicated support for **30+ Android partitions** `boot`, `system`, `recovery`, `vbmeta`, `vendor`, `dtbo`, and more
 - Pre-configured safety checks to prevent syntax errors during flashing operations
 
 ### 🛠️ CPID IMEI Repair
@@ -108,7 +108,7 @@ pip install customtkinter pillow
 python "Pixel Kit.py"
 ```
 
-> ADB and Fastboot binaries are included in the `platform-tools/` folder — no separate SDK download required.
+> ADB and Fastboot binaries are included in the `platform-tools/` folder no separate SDK download required.
 
 ---
 
@@ -148,7 +148,7 @@ Pixel Kit performs low-level operations on your Android device. Unlocking bootlo
 
 - [ ] Linux support
 - [ ] Device profile presets (save common flash configs)
-- [ ] Batch flashing — flash multiple partitions in sequence from a manifest
+- [ ] Batch flashing flash multiple partitions in sequence from a manifest
 - [ ] OTA package sideload automation
 - [ ] Built-in ADB log viewer / logcat tab
 
