@@ -36,7 +36,7 @@
 <p align="center">
   <img src="screenshots/cpid.png" width="48%" style="border-radius:8px; margin-right:2%"/>
   &nbsp;
-  <img src="screenshots/partitions.png" width="48%" style="border-radius:8px"/>
+  <img src="screenshots/partition.png" width="48%" style="border-radius:8px"/>
 </p>
 
 <br/>
