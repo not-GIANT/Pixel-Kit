@@ -28,13 +28,15 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://github.com/not-GIANT/Pixel-Kit/assets/141297821/68ece3b2-4700-40cb-8b43-8fff5c7d328c" alt="Pixel Kit Dark Mode" width="48%" style="border-radius:8px; margin-right:2%"/>
+  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/dark.png" alt="Pixel Kit Dark Mode" width="48%" style="border-radius:8px; margin-right:2%"/>
   &nbsp;
-  <img src="https://github.com/not-GIANT/Pixel-Kit/assets/141297821/a745b7fa-bf89-4696-8801-fabdafdeb514" alt="Pixel Kit Light Mode" width="48%" style="border-radius:8px"/>
+  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/light.png" alt="Pixel Kit Light Mode" width="48%" style="border-radius:8px"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/not-GIANT/Pixel-Kit/assets/141297821/a574c70b-96c3-4332-bc24-aa390d0194ad" alt="Pixel Kit Partition Flasher" width="70%" style="border-radius:8px"/>
+  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/cpid.png" alt="Pixel Kit CPID" width="48%" style="border-radius:8px; margin-right:2%"/>
+  &nbsp;
+  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/partition.png" alt="Pixel Kit Partition Flasher" width="48%" style="border-radius:8px"/>
 </p>
 
 <br/>
