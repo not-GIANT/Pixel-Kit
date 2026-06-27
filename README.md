@@ -102,20 +102,23 @@ Pre-configured safety checks prevent syntax errors during critical flash operati
 
 | Device | Model | Android | Status |
 |--------|-------|---------|--------|
-| Pixel 6 | `oriole` | 12 → 15 | ✅ Supported |
-| Pixel 6 Pro | `raven` | 12 → 15 | ✅ Supported |
-| Pixel 6a | `bluejay` | 12 → 15 | ✅ Supported |
-| Pixel 7 | `panther` | 13 → 15 | ✅ Supported |
-| Pixel 7 Pro | `cheetah` | 13 → 15 | ✅ Supported |
-| Pixel 7a | `lynx` | 13 → 15 | ✅ Supported |
-| Pixel 8 | `shiba` | 14 → 15 | ✅ Supported |
-| Pixel 8 Pro | `husky` | 14 → 15 | ✅ Supported |
-| Pixel 8a | `akita` | 14 → 15 | ✅ Supported |
-| Pixel 9 | `tokay` | 15 | ✅ Supported |
-| Pixel 9 Pro | `caiman` | 15 | ✅ Supported |
-| Pixel 9 Pro XL | `komodo` | 15 | ✅ Supported |
-| Pixel 9 Pro Fold | `comet` | 15 | ✅ Supported |
-| Pixel 9a | `manta` | 15 | ✅ Supported |
+| Pixel 6 | `oriole` | 12 → 16 | ✅ Supported |
+| Pixel 6 Pro | `raven` | 12 → 16 | ✅ Supported |
+| Pixel 6a | `bluejay` | 12 → 16 | ✅ Supported |
+| Pixel 7 | `panther` | 13 → 16 | ✅ Supported |
+| Pixel 7 Pro | `cheetah` | 13 → 16 | ✅ Supported |
+| Pixel 7a | `lynx` | 13 → 16 | ✅ Supported |
+| Pixel 8 | `shiba` | 14 → 16 | ✅ Supported |
+| Pixel 8 Pro | `husky` | 14 → 16 | ✅ Supported |
+| Pixel 8a | `akita` | 14 → 16 | ✅ Supported |
+| Pixel 9 | `tokay` | 16 | ✅ Supported |
+| Pixel 9 Pro | `caiman` | 16 | ✅ Supported |
+| Pixel 9 Pro XL | `komodo` | 16 | ✅ Supported |
+| Pixel 9 Pro Fold | `comet` | 16 | ✅ Supported |
+| Pixel 9a | `manta` | 16 | ✅ Supported |
+| Pixel 10 Pro | `blazer` | 16 | ✅ Supported |
+| Pixel 10 Pro XL | `mustang` | 16 | ✅ Supported |
+| Pixel 10 | `frankel` | 16 | ✅ Supported |
 
 </p>
 
@@ -196,25 +199,6 @@ python "Pixel Kit.py"
 
 ---
 
-## 🗺️ Roadmap
-
-- [x] ADB & Fastboot core operations
-- [x] Partition flasher with 30+ targets
-- [x] Dark / Light / System theme
-- [x] Scrcpy screen mirroring integration
-- [x] A/B slot management
-- [ ] Wireless ADB (Wi-Fi pairing)
-- [ ] Batch APK installer
-- [ ] Backup & Restore profiles
-- [ ] Auto device recognition + codename display
-- [ ] Android 16 QPR1 / Android 17 compatibility layer
-
-<p align="center">
-  <img src="assets/divider.svg" width="100%"/>
-</p>
-
----
-
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome!
@@ -233,7 +217,7 @@ Contributions, issues, and feature requests are welcome!
 
 <p align="center">
   <br/>
-  <img src="Icon.png" width="60" alt="Pixel Kit Icon"/>
+  <img src="icon.png" width="60" alt="Pixel Kit Icon"/>
   <br/><br/>
   <b>Coded with ❤️ by <a href="https://github.com/not-GIANT">GIANT</a></b>
   <br/>
