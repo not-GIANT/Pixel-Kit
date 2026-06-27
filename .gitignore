@@ -5,6 +5,9 @@ __pycache__/
 *.so
 .Python
 env/
+venv/
+ENV/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -22,10 +25,14 @@ wheels/
 *.egg
 
 # PyInstaller
-#  Usually these files are written by a python script, and contain the bin names
-#  and such, with absolute paths
 *.manifest
 *.spec
+!Pixel Kit.spec
+
+# PyInstaller output
+build/
+dist/
+*.exe
 
 # Installer logs
 pip-log.txt
@@ -34,6 +41,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
@@ -41,65 +49,57 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
 *.pot
 
-# Django stuff:
-*.log
+# Django / Flask / Scrapy / Sphinx / Jupyter / pyenv / celery
 local_settings.py
-
-# Flask stuff:
 instance/
 .webassets-cache
-
-# Scrapy stuff:
 .scrapy
-
-# Sphinx documentation
 docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
 .ipynb_checkpoints
-
-# pyenv
 .python-version
-
-# celery beat schedule file
 celerybeat-schedule
 
-# SageMath parsed files
+# SageMath
 *.sage.py
 
 # dotenv
 .env
-
-# virtualenv
-venv/
-ENV/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# MyPy
-.mypy_cache/
-
-# Local configuration
-pixelkit_config.json
 
 # IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local configuration
+pixelkit_config.json
+
+# Pixel Kit v3.1 - bundled Python runtime inside resources/
+# These are generated/embedded by PyInstaller and should not be version-controlled.
+resources/python.exe
+resources/pythonw.exe
+resources/python*.dll
+resources/vcruntime*.dll
+resources/*.dll
+resources/*.exe
+resources/DLLs/
+resources/Lib/
+resources/Doc/
+resources/include/
+resources/Scripts/
+resources/tcl/
+resources/libs/
+resources/__pycache__/
