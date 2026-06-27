@@ -28,13 +28,13 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://github.com/not-GIANT/Pixel-Kit/screenshots/dark.png" alt="Pixel Kit Dark Mode" width="48%" style="border-radius:8px; margin-right:2%"/>
+  <img src="https://github.com/not-GIANT/Pixel-Kit/dark.png" width="48%" style="border-radius:8px; margin-right:2%"/>
   &nbsp;
-  <img src="https://github.com/not-GIANT/Pixel-Kit/screenshots/light.png" alt="Pixel Kit Light Mode" width="48%" style="border-radius:8px"/>
+  <img src="https://github.com/not-GIANT/Pixel-Kit/light.png" width="48%" style="border-radius:8px"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/not-GIANT/Pixel-Kit/screenshots/cpid.png" alt="Pixel Kit Partition Flasher" width="70%" style="border-radius:8px"/>
+  <img src="https://github.com/not-GIANT/Pixel-Kit/cpid.png"  width="70%" style="border-radius:8px"/>
 </p>
 
 <br/>
