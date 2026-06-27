@@ -28,15 +28,13 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/dark.png" alt="Pixel Kit Dark Mode" width="48%" style="border-radius:8px; margin-right:2%"/>
+  <img src="https://github.com/not-GIANT/Pixel-Kit/screenshots/dark.png" alt="Pixel Kit Dark Mode" width="48%" style="border-radius:8px; margin-right:2%"/>
   &nbsp;
-  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/light.png" alt="Pixel Kit Light Mode" width="48%" style="border-radius:8px"/>
+  <img src="https://github.com/not-GIANT/Pixel-Kit/screenshots/light.png" alt="Pixel Kit Light Mode" width="48%" style="border-radius:8px"/>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/cpid.png" alt="Pixel Kit CPID" width="48%" style="border-radius:8px; margin-right:2%"/>
-  &nbsp;
-  <img src="https://raw.githubusercontent.com/not-GIANT/Pixel-Kit/main/partition.png" alt="Pixel Kit Partition Flasher" width="48%" style="border-radius:8px"/>
+  <img src="https://github.com/not-GIANT/Pixel-Kit/screenshots/cpid.png" alt="Pixel Kit Partition Flasher" width="70%" style="border-radius:8px"/>
 </p>
 
 <br/>
@@ -104,20 +102,23 @@ Pre-configured safety checks prevent syntax errors during critical flash operati
 
 | Device | Model | Android | Status |
 |--------|-------|---------|--------|
-| Pixel 6 | `oriole` | 12 → 15 | ✅ Supported |
-| Pixel 6 Pro | `raven` | 12 → 15 | ✅ Supported |
-| Pixel 6a | `bluejay` | 12 → 15 | ✅ Supported |
-| Pixel 7 | `panther` | 13 → 15 | ✅ Supported |
-| Pixel 7 Pro | `cheetah` | 13 → 15 | ✅ Supported |
-| Pixel 7a | `lynx` | 13 → 15 | ✅ Supported |
-| Pixel 8 | `shiba` | 14 → 15 | ✅ Supported |
-| Pixel 8 Pro | `husky` | 14 → 15 | ✅ Supported |
-| Pixel 8a | `akita` | 14 → 15 | ✅ Supported |
-| Pixel 9 | `tokay` | 15 | ✅ Supported |
-| Pixel 9 Pro | `caiman` | 15 | ✅ Supported |
-| Pixel 9 Pro XL | `komodo` | 15 | ✅ Supported |
-| Pixel 9 Pro Fold | `comet` | 15 | ✅ Supported |
-| Pixel 9a | `manta` | 15 | ✅ Supported |
+| Pixel 6 | `oriole` | 12 → 16 | ✅ Supported |
+| Pixel 6 Pro | `raven` | 12 → 16 | ✅ Supported |
+| Pixel 6a | `bluejay` | 12 → 16 | ✅ Supported |
+| Pixel 7 | `panther` | 13 → 16 | ✅ Supported |
+| Pixel 7 Pro | `cheetah` | 13 → 16 | ✅ Supported |
+| Pixel 7a | `lynx` | 13 → 16 | ✅ Supported |
+| Pixel 8 | `shiba` | 14 → 16 | ✅ Supported |
+| Pixel 8 Pro | `husky` | 14 → 16 | ✅ Supported |
+| Pixel 8a | `akita` | 14 → 16 | ✅ Supported |
+| Pixel 9 | `tokay` | 16 | ✅ Supported |
+| Pixel 9 Pro | `caiman` | 16 | ✅ Supported |
+| Pixel 9 Pro XL | `komodo` | 16 | ✅ Supported |
+| Pixel 9 Pro Fold | `comet` | 16 | ✅ Supported |
+| Pixel 9a | `manta` | 16 | ✅ Supported |
+| Pixel 10 Pro | `blazer` | 16 | ✅ Supported |
+| Pixel 10 Pro XL | `mustang` | 16 | ✅ Supported |
+| Pixel 10 | `frankel` | 16 | ✅ Supported |
 
 </p>
 
@@ -175,7 +176,6 @@ python "Pixel Kit.py"
 | **USB Drivers** | [Google USB Driver](https://developer.android.com/studio/run/win-usb) |
 | **ADB / Fastboot** | Bundled in `platform-tools/` |
 | **USB Debugging** | Must be enabled on the device |
-| **Scrcpy** *(optional)* | Required for Screen Mirroring feature |
 
 <p align="center">
   <img src="assets/divider.svg" width="100%"/>
@@ -191,25 +191,6 @@ python "Pixel Kit.py"
 > Modifying partitions, unlocking bootloaders, or wiping EFS data can **permanently brick** your device or void your warranty. Always back up your data before proceeding. The author is not responsible for any data loss, hardware damage, or device failure resulting from use of this tool.
 >
 > **Use at your own risk.**
-
-<p align="center">
-  <img src="assets/divider.svg" width="100%"/>
-</p>
-
----
-
-## 🗺️ Roadmap
-
-- [x] ADB & Fastboot core operations
-- [x] Partition flasher with 30+ targets
-- [x] Dark / Light / System theme
-- [x] Scrcpy screen mirroring integration
-- [x] A/B slot management
-- [ ] Wireless ADB (Wi-Fi pairing)
-- [ ] Batch APK installer
-- [ ] Backup & Restore profiles
-- [ ] Auto device recognition + codename display
-- [ ] Android 16 QPR1 / Android 17 compatibility layer
 
 <p align="center">
   <img src="assets/divider.svg" width="100%"/>
@@ -235,7 +216,7 @@ Contributions, issues, and feature requests are welcome!
 
 <p align="center">
   <br/>
-  <img src="Icon.png" width="60" alt="Pixel Kit Icon"/>
+  <img src="icon.png" width="60" alt="Pixel Kit Icon"/>
   <br/><br/>
   <b>Coded with ❤️ by <a href="https://github.com/not-GIANT">GIANT</a></b>
   <br/>
