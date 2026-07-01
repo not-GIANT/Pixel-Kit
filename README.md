@@ -28,13 +28,15 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://github.com/not-GIANT/Pixel-Kit/assets/141297821/68ece3b2-4700-40cb-8b43-8fff5c7d328c" alt="Pixel Kit Dark Mode" width="48%" style="border-radius:8px; margin-right:2%"/>
+  <img src="screenshots/dark.png" width="48%" style="border-radius:8px; margin-right:2%"/>
   &nbsp;
-  <img src="https://github.com/not-GIANT/Pixel-Kit/assets/141297821/a745b7fa-bf89-4696-8801-fabdafdeb514" alt="Pixel Kit Light Mode" width="48%" style="border-radius:8px"/>
+  <img src="screenshots/light.png" width="48%" style="border-radius:8px"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/not-GIANT/Pixel-Kit/assets/141297821/a574c70b-96c3-4332-bc24-aa390d0194ad" alt="Pixel Kit Partition Flasher" width="70%" style="border-radius:8px"/>
+  <img src="screenshots/cpid.png" width="48%" style="border-radius:8px; margin-right:2%"/>
+  &nbsp;
+  <img src="screenshots/partition.png" width="48%" style="border-radius:8px"/>
 </p>
 
 <br/>
@@ -102,20 +104,23 @@ Pre-configured safety checks prevent syntax errors during critical flash operati
 
 | Device | Model | Android | Status |
 |--------|-------|---------|--------|
-| Pixel 6 | `oriole` | 12 → 15 | ✅ Supported |
-| Pixel 6 Pro | `raven` | 12 → 15 | ✅ Supported |
-| Pixel 6a | `bluejay` | 12 → 15 | ✅ Supported |
-| Pixel 7 | `panther` | 13 → 15 | ✅ Supported |
-| Pixel 7 Pro | `cheetah` | 13 → 15 | ✅ Supported |
-| Pixel 7a | `lynx` | 13 → 15 | ✅ Supported |
-| Pixel 8 | `shiba` | 14 → 15 | ✅ Supported |
-| Pixel 8 Pro | `husky` | 14 → 15 | ✅ Supported |
-| Pixel 8a | `akita` | 14 → 15 | ✅ Supported |
-| Pixel 9 | `tokay` | 15 | ✅ Supported |
-| Pixel 9 Pro | `caiman` | 15 | ✅ Supported |
-| Pixel 9 Pro XL | `komodo` | 15 | ✅ Supported |
-| Pixel 9 Pro Fold | `comet` | 15 | ✅ Supported |
-| Pixel 9a | `manta` | 15 | ✅ Supported |
+| Pixel 6 | `oriole` | 12 → 16 | ✅ Supported |
+| Pixel 6 Pro | `raven` | 12 → 16 | ✅ Supported |
+| Pixel 6a | `bluejay` | 12 → 16 | ✅ Supported |
+| Pixel 7 | `panther` | 13 → 16 | ✅ Supported |
+| Pixel 7 Pro | `cheetah` | 13 → 16 | ✅ Supported |
+| Pixel 7a | `lynx` | 13 → 16 | ✅ Supported |
+| Pixel 8 | `shiba` | 14 → 16 | ✅ Supported |
+| Pixel 8 Pro | `husky` | 14 → 16 | ✅ Supported |
+| Pixel 8a | `akita` | 14 → 16 | ✅ Supported |
+| Pixel 9 | `tokay` | 16 | ✅ Supported |
+| Pixel 9 Pro | `caiman` | 16 | ✅ Supported |
+| Pixel 9 Pro XL | `komodo` | 16 | ✅ Supported |
+| Pixel 9 Pro Fold | `comet` | 16 | ✅ Supported |
+| Pixel 9a | `manta` | 16 | ✅ Supported |
+| Pixel 10 Pro | `blazer` | 16 | ✅ Supported |
+| Pixel 10 Pro XL | `mustang` | 16 | ✅ Supported |
+| Pixel 10 | `frankel` | 16 | ✅ Supported |
 
 </p>
 
@@ -173,7 +178,6 @@ python "Pixel Kit.py"
 | **USB Drivers** | [Google USB Driver](https://developer.android.com/studio/run/win-usb) |
 | **ADB / Fastboot** | Bundled in `platform-tools/` |
 | **USB Debugging** | Must be enabled on the device |
-| **Scrcpy** *(optional)* | Required for Screen Mirroring feature |
 
 <p align="center">
   <img src="assets/divider.svg" width="100%"/>
@@ -198,7 +202,7 @@ python "Pixel Kit.py"
 
 <p align="center">
   <br/>
-  <img src="Icon.png" width="60" alt="Pixel Kit Icon"/>
+  <img src="icon.png" width="60" alt="Pixel Kit Icon"/>
   <br/><br/>
   <b>Coded with ❤️ by <a href="https://github.com/not-GIANT">GIANT</a></b>
   <br/>
