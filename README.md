@@ -160,7 +160,7 @@ cd Pixel-Kit
 pip install PyQt6 pillow
 
 # 3. Launch
-python "Pixel Kit.py"
+python "run.py"
 ```
 
 <p align="center">
