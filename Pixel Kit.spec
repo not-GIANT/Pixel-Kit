@@ -21,6 +21,10 @@ hiddenimports = []
 #     devinfo models, lexipwn, etc. Everything the app reads at runtime. ---
 datas += [('resources', 'resources')]
 
+# --- nav_icons/ : SVG icons for the sidebar navigation rail ---
+datas += [('pixelkit_qt/theme/nav_icons', 'pixelkit_qt/theme/nav_icons')]
+
+
 # --- PySide6 (Qt 6) : the GUI framework. Collect its plugins/translations
 #     so Qt plugins (image formats, platform, styles) ship with the build. ---
 tmp_ret = collect_all('PySide6')

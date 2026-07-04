@@ -128,7 +128,9 @@ def draw_social_icon(name: str, color_hex: str, size: int = 20) -> QIcon:
 # Each .svg in nav_icons/ uses fill="currentColor" so we can inject any color
 # at render-time without modifying the file.
 # ---------------------------------------------------------------------------
-_NAV_ICONS_DIR = __file__.replace("icons.py", "nav_icons")
+import os
+_NAV_ICONS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nav_icons")
+
 
 
 def draw_nav_icon_pixmap(name: str, color_hex: str, size: int) -> QPixmap:
