@@ -28,15 +28,15 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="screenshots/dark.png" width="48%" style="border-radius:8px; margin-right:2%"/>
+  <img src="screenshots/adb.png" width="48%" style="border-radius:8px; margin-right:2%"/>
   &nbsp;
-  <img src="screenshots/light.png" width="48%" style="border-radius:8px"/>
+  <img src="screenshots/fastboot.png" width="48%" style="border-radius:8px"/>
 </p>
 
 <p align="center">
   <img src="screenshots/cpid.png" width="48%" style="border-radius:8px; margin-right:2%"/>
   &nbsp;
-  <img src="screenshots/partition.png" width="48%" style="border-radius:8px"/>
+  <img src="screenshots/firmware.png" width="48%" style="border-radius:8px"/>
 </p>
 
 <br/>
