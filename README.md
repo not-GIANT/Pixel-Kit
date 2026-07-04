@@ -24,6 +24,11 @@
 <br/>
 
 ---
+## ✨ Features
+
+<p align="center">
+  <img src="assets/features.svg" width="100%"/>
+</p>
 
 ## 📸 Screenshots
 
@@ -43,12 +48,6 @@
 
 <p align="center">
   <img src="assets/divider.svg" width="100%"/>
-</p>
-
-## ✨ Features
-
-<p align="center">
-  <img src="assets/features.svg" width="100%"/>
 </p>
 
 <br/>
