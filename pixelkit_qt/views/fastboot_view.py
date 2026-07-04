@@ -31,11 +31,15 @@ class FastbootView(QWidget):
         # heights after layout (tallest card wins → every card the same height,
         # borders aligned across the whole grid, not just per row).
         self._cards: list = []
+        self._current_cols = 0  # tracks 1-col vs 2-col layout state
+        self._scroll = None  # set in _build_ui
         self._build_ui()
 
     # =====================================================================
     # Layout
     # =====================================================================
+
+    REFLOW_THRESHOLD = 620  # px — switch from 2-col to 1-col below this width
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
@@ -51,47 +55,101 @@ class FastbootView(QWidget):
         host = QWidget()
         self._grid = QGridLayout(host)
         self._grid.setSpacing(10)
-        self._grid.setColumnStretch(0, 1)
-        self._grid.setColumnStretch(1, 1)
+        # Column stretches are managed dynamically by _reflow_grid().
         scroll.setWidget(host)
         outer.addWidget(scroll, 1)
+        self._scroll = scroll
 
-        # Card order reflects the fastboot workflow: device-info commands first,
-        # then the most-used operations (Maintenance, Power), with the
-        # destructive Bootloader lock/unlock card last. 2-column reading order:
-        #   row 0: Device | Maintenance
-        #   row 1: Power   | Bootloader
-        self._build_device_card(0, 0)
-        self._build_maintenance_card(0, 1)
-        self._build_power_card(1, 0)
-        self._build_bootloader_card(1, 1)
+        # Build all four cards (populates self._cards via _add_card).
+        self._build_device_card()
+        self._build_maintenance_card()
+        self._build_power_card()
+        self._build_bootloader_card()
 
-        # Each card now ends in an elastic spacer: when the card is stretched
-        # to the section's shared height, the slack lands below the buttons so
-        # title/description/buttons stay anchored at the top (no button stretch).
+        # Each card ends in an elastic spacer so extra height from equalization
+        # lands below the buttons, keeping them anchored at the top.
         for card in self._cards:
             card.append_bottom_spacer()
 
-    def _add_card(self, card, row: int, col: int) -> None:
-        # NOTE: no Qt.AlignTop — a top alignment would clamp the cell to the
-        # card's natural height and defeat the section-wide height equalization
-        # (the card must be free to fill the cell vertically to match siblings).
-        self._grid.addWidget(card, row, col)
+        # Hook the scroll area's viewport so we reflow exactly when the visible
+        # width changes — not when FastbootView itself resizes (which can fire
+        # before Qt has propagated the new size down to the viewport).
+        scroll.viewport().installEventFilter(self)
+
+    def _add_card(self, card) -> None:
+        """Register a card. Grid placement is handled by _reflow_grid()."""
         self._cards.append(card)
 
+    def _reflow_grid(self, force: bool = False) -> None:
+        """Place cards in the grid according to the current viewport width.
+
+        Switches between 2-column (wide) and 1-column (narrow) layouts when
+        the view crosses REFLOW_THRESHOLD px. The reflow is a no-op when the
+        column count hasn't changed — this keeps resize overhead minimal.
+
+        Uses the FitScrollArea viewport width rather than self.width() because
+        the grid lives inside the scroll host, not the outer page widget.
+        """
+        if self._scroll is not None:
+            vw = self._scroll.viewport().width()
+        else:
+            vw = self.width()
+        cols = 2
+        if not force and cols == self._current_cols:
+            return
+        self._current_cols = cols
+
+        # Remove every card from the grid without destroying it.
+        for card in self._cards:
+            self._grid.removeWidget(card)
+            card.setMinimumHeight(0)  # reset equalization
+
+        # Clear column stretches and apply new ones.
+        for c in range(2):
+            self._grid.setColumnStretch(c, 0)
+        for c in range(cols):
+            self._grid.setColumnStretch(c, 1)
+
+        # Re-insert cards in reading order.
+        for i, card in enumerate(self._cards):
+            if cols == 2:
+                self._grid.addWidget(card, i // 2, i % 2)
+            else:
+                self._grid.addWidget(card, i, 0)
+
+    def eventFilter(self, obj, event):
+        """Reflow cards when the scroll viewport actually changes size."""
+        from PySide6.QtCore import QEvent
+        if obj is self._scroll.viewport() and event.type() == QEvent.Resize:
+            self._reflow_grid()
+            QTimer.singleShot(0, lambda: equalize_card_heights(self._cards) if self._current_cols == 2 else None)
+        return super().eventFilter(obj, event)
+
     def showEvent(self, event):
-        """Re-equalize card heights once the cards have been laid out and know
-        their real size hints. Re-run on every show so a theme toggle / window
-        resize (which can change text wrapping and thus card heights) keeps the
-        borders aligned."""
+        """Reflow cards (initial or after tab-switch) and re-equalize heights."""
         super().showEvent(event)
-        QTimer.singleShot(0, lambda: equalize_card_heights(self._cards))
+        # Defer so Qt has finished laying out the scroll area and the viewport
+        # has its real width before we decide 1-col vs 2-col.
+        QTimer.singleShot(0, self._do_initial_reflow)
+
+    def _do_initial_reflow(self):
+        self._reflow_grid(force=(self._current_cols == 0))
+        if self._current_cols == 2:
+            equalize_card_heights(self._cards)
 
     def resizeEvent(self, event):
-        """Re-equalize card heights when the window is resized to adapt to new
-        text wrapping and layout constraints."""
+        """Fallback: reflow when FastbootView itself resizes."""
         super().resizeEvent(event)
-        equalize_card_heights(self._cards)
+        QTimer.singleShot(0, self._do_resize_reflow)
+
+    def _do_resize_reflow(self):
+        prev_cols = self._current_cols
+        self._reflow_grid()
+        if self._current_cols == 2:
+            equalize_card_heights(self._cards)
+        elif prev_cols == 2:
+            for card in self._cards:
+                card.setMinimumHeight(0)
 
 
 
@@ -99,7 +157,7 @@ class FastbootView(QWidget):
     # Card: Bootloader (lock/unlock with variant chooser)
     # ---------------------------------------------------------------------
 
-    def _build_bootloader_card(self, row: int, col: int) -> None:
+    def _build_bootloader_card(self) -> None:
         card = ActionCard("Bootloader", "Lock or unlock (wipes data)",
                           columns=2)
         self._action_btn(card, "Unlock", "Unlock bootloader (wipes data)",
@@ -107,13 +165,13 @@ class FastbootView(QWidget):
                          variant="tonal")
         self._action_btn(card, "Lock", "Lock bootloader",
                          lambda: self._prompt_bootloader_action("lock"))
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # ---------------------------------------------------------------------
     # Card: Power (reboot submenu)
     # ---------------------------------------------------------------------
 
-    def _build_power_card(self, row: int, col: int) -> None:
+    def _build_power_card(self) -> None:
         card = ActionCard("Power", "Reboot the connected device", columns=2)
         self._action_btn(card, "System", "Reboot to Android OS",
                          lambda: self._fb(["reboot"], "Reboot System"))
@@ -126,13 +184,13 @@ class FastbootView(QWidget):
         self._action_btn(card, "Recovery", "Reboot to recovery mode",
                          lambda: self._fb(["reboot", "recovery"],
                                            "Reboot Recovery"))
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # ---------------------------------------------------------------------
     # Card: Maintenance
     # ---------------------------------------------------------------------
 
-    def _build_maintenance_card(self, row: int, col: int) -> None:
+    def _build_maintenance_card(self) -> None:
         card = ActionCard("Maintenance", "Wipes & partition erasures",
                           columns=2)
         self._action_btn(card, "Erase Cache", "Erase the cache partition",
@@ -144,13 +202,13 @@ class FastbootView(QWidget):
         self._action_btn(card, "Wipe Data", "Wipe user data and cache (-w)",
                          lambda: self._confirm_wipe(),
                          variant="danger")
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # ---------------------------------------------------------------------
     # Card: Device
     # ---------------------------------------------------------------------
 
-    def _build_device_card(self, row: int, col: int) -> None:
+    def _build_device_card(self) -> None:
         card = ActionCard("Device", "Info, slots, boot image", columns=2)
         self._action_btn(card, "List Devices", "List connected fastboot devices",
                          lambda: self._fb(["devices"], "List Devices"))
@@ -170,7 +228,7 @@ class FastbootView(QWidget):
         self._action_btn(card, "Custom Command",
                          "Run an arbitrary fastboot command",
                          self.custom_command, variant="outlined")
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # =====================================================================
     # Button factory helpers
@@ -267,7 +325,7 @@ class FastbootView(QWidget):
             self._fb(["boot", path], "Boot Image")
 
     def custom_command(self) -> None:
-        """Free-form fastboot command. 'fastboot' prefix is stripped if present."""
+        """Free-form fastboot/adb command. Runs adb if explicitly requested."""
         import shlex
         raw = dialogs.prompt_text(
             self, "Custom Fastboot Command",
@@ -278,8 +336,15 @@ class FastbootView(QWidget):
         parts = shlex.split(raw)
         if not parts:
             return
-        if parts[0].lower() in ("adb", "fastboot"):
+
+        tool = "fastboot"
+        if parts[0].lower() == "fastboot":
+            tool = "fastboot"
             parts = parts[1:]
+        elif parts[0].lower() == "adb":
+            tool = "adb"
+            parts = parts[1:]
+
         if not parts:
             return
-        self._fb(parts, f"Custom: {' '.join(parts[:3])}")
+        self.executor.run_command_threaded(tool, parts, task_name=f"Custom: {tool} {' '.join(parts[:2])}")

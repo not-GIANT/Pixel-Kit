@@ -41,7 +41,7 @@ class AppConfig:
 
     @property
     def window_position(self):
-        return self.config_data.get("position", "1100x800+100+100")
+        return self.config_data.get("position", "1192x661+242+89")
 
     @window_position.setter
     def window_position(self, value):
@@ -56,7 +56,7 @@ class AppConfig:
         self.config_data["skip_cpid_warning"] = value
 
     def load(self):
-        defaults = {"theme": "Dark", "position": "1100x800+100+100"}
+        defaults = {"theme": "Dark", "position": "1192x661+242+89"}
         if self.config_file.exists():
             try:
                 with open(self.config_file, 'r') as f:

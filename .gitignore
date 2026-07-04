@@ -87,8 +87,28 @@ desktop.ini
 # Local configuration
 pixelkit_config.json
 
+# Runtime logs
+logs/
+
+# Runtime scratch / device data (pulled or generated at runtime, per-device)
+resources/cpsha.bak
+resources/imei_list.txt
+devinfo.img
+modified_devinfo.img
+resources/devinfo.img
+resources/modified_devinfo.img
+resources/devinfo_*.img
+resources/models/*/devinfo.img.bak
+
+# Local build helpers / dev tooling
+check_py.py
+.kimchi/
+.superpowers/
+.claude/
+
 # Pixel Kit v3.1 - bundled Python runtime inside resources/
-# These are generated/embedded by PyInstaller and should not be version-controlled.
+# Legacy embedded CPython — PyInstaller bundles its own runtime, so this
+# whole tree is regenerable and must never be version-controlled.
 resources/python.exe
 resources/pythonw.exe
 resources/python*.dll

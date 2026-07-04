@@ -32,6 +32,7 @@ _TAG_TO_LEVEL = {
     "command_output": "success",
     "error": "error",
     "info": "info",
+    "warn": "warn",
 }
 
 
@@ -65,7 +66,7 @@ class QtBridge(QObject):
 
     # --- internals ---
 
-    def _emit_console(self, text: str, tag: str) -> None:
+    def _emit_console(self, text: str, tag: str = None) -> None:
         """Normalize the service's CTk-style tag into an M3 log level."""
-        level = _TAG_TO_LEVEL.get(tag, "info")
+        level = _TAG_TO_LEVEL.get(tag or "", "info")
         self.console_output.emit(text, level)

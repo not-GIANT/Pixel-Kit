@@ -26,15 +26,16 @@ from pixelkit.logger import PixelKitLogger
 from pixelkit.services.command_executor import CommandExecutor
 from pixelkit.services.cpid_service import CpidService
 from pixelkit.services.pixel10_service import Pixel10Service
+from pixelkit.services.firmware_service import FirmwareService
 from pixelkit.services.device_monitor import DeviceMonitor
 
 from .bridge import QtBridge
 from .theme import ThemeManager, tokens, icons
-from .views import AdbView, FastbootView, FlashingView, CpidView
+from .views import AdbView, FastbootView, FlashingView, CpidView, FirmwareView
 from .widgets import DeviceCard, LogView, NavRail
 
 APP_TITLE = "Pixel Kit"
-APP_VERSION = "v3.7 (Qt/M3)"
+APP_VERSION = "v3.9 (Qt/M3)"
 
 
 class MainWindow(QMainWindow):
@@ -42,13 +43,11 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PixelKit-3.7 by GIANT")
-        # Compact default sized for a 13" laptop (~1366×768). The content is
-        # dense (device card + 2×2 action-card grid + console), so we keep the
-        # window small rather than forcing maximize. Minimums ensure every
-        # card stays visible without maximization.
-        self.resize(1040, 700)
-        self.setMinimumSize(880, 560)
+        self.setWindowTitle("PixelKit-3.9 by GIANT")
+        # Minimum size keeps every card visible without maximisation.
+        # The actual launch size/position is restored from the saved config
+        # below (falls back to 1040×700 centred if no config exists yet).
+        self.setMinimumSize(940, 560)
 
         # --- App resources (config, logger, services) ---
         self.app_config = AppConfig()
@@ -60,12 +59,13 @@ class MainWindow(QMainWindow):
 
         log_dir = self.app_config.persistent_dir / "logs"
         self.log = PixelKitLogger(
-            console_callback=lambda text, tag=None: None,  # log file only here
+            console_callback=lambda text, tag=None: None,  # placeholder; rewired below
             log_dir=str(log_dir),
         )
         self.executor = CommandExecutor(self.app_config, log=self.log)
         self.cpid_service = CpidService(self.executor, self.app_config, log=self.log)
         self.pixel10_service = Pixel10Service(self.executor, self.app_config, log=self.log)
+        self.firmware_service = FirmwareService(self.executor, self.app_config, log=self.log)
         self.device_monitor = DeviceMonitor(
             self.executor, log=self.log, on_status_change=None)
 
@@ -74,12 +74,23 @@ class MainWindow(QMainWindow):
         self.bridge.bind_executor(self.executor)
         self.bridge.bind_device_monitor(self.device_monitor)
 
+        # Now that the bridge exists, rewire the logger's console_callback so
+        # that direct log calls (e.g. from CpidService._log, which calls
+        # self.log.info/status/error directly instead of going through the
+        # executor's on_console_output callback) also appear in the GUI console.
+        self.log.console_callback = self.bridge._emit_console
+
         # --- Theme (initial stylesheet only; the change listener is wired
         # after the widgets exist, since it re-paints live widgets) ---
         self.theme = ThemeManager(
             QApplication.instance(), seed=tokens.SEED,
             dark=(self.app_config.theme.lower() == "dark"))
         self.theme.apply()
+
+        # --- Restore window geometry (size + position) from config.
+        # Done BEFORE the UI is built so the initial paint already uses the
+        # saved size — this avoids a flicker from resize(1040,700) → saved.
+        self._restore_window_state()
 
         # --- Build UI ---
         self._build_menu_bar()
@@ -121,6 +132,10 @@ class MainWindow(QMainWindow):
 
         # Help menu
         help_menu = mb.addMenu("&Help")
+        act_drivers = QAction("&Install Drivers...", self)
+        act_drivers.triggered.connect(self._show_install_drivers)
+        help_menu.addAction(act_drivers)
+        help_menu.addSeparator()
         act_about = QAction("&About", self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
@@ -146,6 +161,7 @@ class MainWindow(QMainWindow):
 
         # --- Content zone: device card on top + stacked views below ---
         content = QWidget()
+        content.setMinimumWidth(550)
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(14, 10, 8, 10)
         content_layout.setSpacing(10)
@@ -169,11 +185,17 @@ class MainWindow(QMainWindow):
             self.executor, self.app_config,
             self.cpid_service, self.pixel10_service, self.log)
         self.page_stack.addWidget(self.page_cpid)
+        self.page_firmware = FirmwareView(
+            self.executor, self.app_config,
+            self.firmware_service, self.log)
+        self.page_stack.addWidget(self.page_firmware)
+        self.bridge.device_status.connect(self.page_firmware.on_device_status)
         content_layout.addWidget(self.page_stack, 1)
         splitter.addWidget(content)
 
         # --- Right: persistent console + progress + stop ---
         console_zone = QWidget()
+        console_zone.setMinimumWidth(300)
         console_layout = QVBoxLayout(console_zone)
         console_layout.setContentsMargins(8, 10, 14, 10)
         console_layout.setSpacing(8)
@@ -196,16 +218,26 @@ class MainWindow(QMainWindow):
         console_layout.addLayout(ctrl)
         splitter.addWidget(console_zone)
 
+        # Keep a reference so closeEvent can persist the splitter position.
+        self.splitter = splitter
+
         # Weight: content gets most of the width; console ~36%.
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
-        splitter.setSizes([620, 380])
+
+        # Restore saved splitter sizes (falls back to a good default).
+        saved_split = self.app_config.config_data.get("splitter_sizes")
+        if saved_split and len(saved_split) == 2:
+            splitter.setSizes(saved_split)
+        else:
+            splitter.setSizes([550, 557])
 
         # Wire nav rail → page switching. Each destination gets a themed icon.
-        self.nav_rail.add_item(icons.icon_for("nav-adb"), "ADB")
-        self.nav_rail.add_item(icons.icon_for("nav-fastboot"), "Fastboot")
-        self.nav_rail.add_item(icons.icon_for("nav-flashing"), "Flashing")
-        self.nav_rail.add_item(icons.icon_for("nav-cpid"), "CPID")
+        self.nav_rail.add_item(icons.icon_for("nav-adb"), "ADB", "nav-adb")
+        self.nav_rail.add_item(icons.icon_for("nav-fastboot"), "Fastboot", "nav-fastboot")
+        self.nav_rail.add_item(icons.icon_for("nav-flashing"), "Flashing", "nav-flashing")
+        self.nav_rail.add_item(icons.icon_for("nav-cpid"), "CPID", "nav-cpid")
+        self.nav_rail.add_item(icons.icon_for("nav-firmware"), "Firmware", "nav-firmware")
         self.nav_rail.page_changed.connect(self._on_nav_change)
         self.nav_rail.select(0)
 
@@ -238,7 +270,8 @@ class MainWindow(QMainWindow):
         header. Instant switching is also the M3 nav-rail convention.
         """
         pages = {0: self.page_adb, 1: self.page_fastboot,
-                 2: self.page_flashing, 3: self.page_cpid}
+                 2: self.page_flashing, 3: self.page_cpid,
+                 4: self.page_firmware}
         page = pages.get(index)
         if page is None:
             return
@@ -291,12 +324,25 @@ class MainWindow(QMainWindow):
         here from the active M3 scheme — no hardcoded colors anywhere.
         """
         # Log view: per-level colors + the timestamp-gutter color.
-        self.log_view.set_level_colors({
-            "info": scheme.get("primary", "#0061e6"),
-            "success": scheme.get("on_surface", "#000000"),
-            "warn": scheme.get("error", "#98000a"),
-            "error": scheme.get("error", "#98000a"),
-        })
+        # Custom-calibrated developer console palettes for maximum contrast and vivid colors.
+        is_dark = self.theme.dark
+        if is_dark:
+            log_colors = {
+                "info": "#38BDF8",       # Vibrant Electric Sky Blue (system messages, status headers)
+                "success": "#F8FAFC",    # Clean, crisp off-white (standard command stdout)
+                "warn": "#FBBF24",       # Bright amber-gold (warnings)
+                "error": "#F87171",      # Vivid pastel red-coral (errors)
+                "on_surface_variant": "#94A3B8",  # Muted slate-400 (fallback)
+            }
+        else:
+            log_colors = {
+                "info": "#0D47A1",       # Deep Cobalt Blue (system messages, status headers)
+                "success": "#0F172A",    # Rich Dark Slate/Charcoal (standard command stdout)
+                "warn": "#B45309",       # Warm Amber-Brown (warnings)
+                "error": "#B91C1C",      # Deep Crimson Red (errors)
+                "on_surface_variant": "#475569",  # Slate-600 (fallback)
+            }
+        self.log_view.set_level_colors(log_colors)
         self.log_view.set_scheme(scheme)
 
         # Update the theme toggle menu action text based on current mode.
@@ -309,6 +355,10 @@ class MainWindow(QMainWindow):
         self.device_card.update_colors(scheme)
         # Flashing view: dismissible safety banner tint.
         self.page_flashing.update_colors(scheme)
+        # Firmware view: dismissible safety banner tint.
+        self.page_firmware.update_colors(scheme)
+        # Refresh the nav rail icons with the new theme colors
+        self.nav_rail.update_icons()
         # Persist the new mode.
         self.app_config.theme = "Dark" if self.theme.dark else "Light"
         self.app_config.save()
@@ -318,14 +368,75 @@ class MainWindow(QMainWindow):
         from .widgets import show_about
         show_about(parent=self, window_icon=self.windowIcon())
 
+    def _show_install_drivers(self) -> None:
+        """Open the ADB & Fastboot driver installer dialog."""
+        from .widgets import InstallDriversDialog
+        dlg = InstallDriversDialog(parent=self, config=self.app_config, log=self.log)
+        dlg.exec()
+
     # =====================================================================
     # Lifecycle
     # =====================================================================
 
+    def _restore_window_state(self) -> None:
+        """Restore window size, position, and validate it is on-screen.
+
+        The saved format is ``WxH+X+Y`` (e.g. ``1040x700+200+100``).
+        If no valid saved state exists, the window is set to 1040×700 and
+        centred on the primary screen. An off-screen safety check ensures
+        we never place the window outside every monitor's bounds (e.g. after
+        a monitor is unplugged), falling back to centering in that case.
+        """
+        import re
+        from PySide6.QtGui import QScreen
+
+        pos_str = self.app_config.window_position  # e.g. "1040x700+200+100"
+        match = re.fullmatch(r"(\d+)x(\d+)\+(-?\d+)\+(-?\d+)", pos_str.strip())
+        if match:
+            w, h, x, y = (int(v) for v in match.groups())
+            # Clamp to minimum size just in case the saved value predates it.
+            w = max(w, self.minimumWidth())
+            h = max(h, self.minimumHeight())
+            self.resize(w, h)
+
+            # Safety check: at least 100×50 px of the title bar must be
+            # visible on some screen so the user can always drag it back.
+            from PySide6.QtCore import QRect
+            title_rect = QRect(x, y, max(w, 100), 50)
+            on_screen = any(
+                screen.geometry().intersects(title_rect)
+                for screen in QApplication.screens()
+            )
+            if on_screen:
+                self.move(x, y)
+            else:
+                # Restore size but centre on the primary screen.
+                primary = QApplication.primaryScreen()
+                if primary:
+                    sg = primary.availableGeometry()
+                    self.move(
+                        sg.x() + (sg.width() - w) // 2,
+                        sg.y() + (sg.height() - h) // 2,
+                    )
+        else:
+            # No saved state — default size, centred.
+            self.resize(1192, 661)
+            primary = QApplication.primaryScreen()
+            if primary:
+                sg = primary.availableGeometry()
+                self.move(
+                    sg.x() + (sg.width() - 1192) // 2,
+                    sg.y() + (sg.height() - 661) // 2,
+                )
+
     def closeEvent(self, event) -> None:
         self.device_monitor.stop()
+        # Persist window geometry.
         self.app_config.window_position = (
             f"{self.width()}x{self.height()}+{self.x()}+{self.y()}")
+        # Persist splitter position so the console/content ratio is restored.
+        if hasattr(self, "splitter"):
+            self.app_config.config_data["splitter_sizes"] = self.splitter.sizes()
         self.app_config.save()
         if self.executor.current_process:
             try:

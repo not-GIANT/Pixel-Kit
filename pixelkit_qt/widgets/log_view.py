@@ -19,7 +19,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import (QFont, QFontDatabase, QTextCharFormat, QTextCursor,
-                           QColor)
+                           QColor, QTextFormat)
 from PySide6.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                                QPlainTextEdit, QPushButton, QVBoxLayout,
                                QWidget)
@@ -33,6 +33,7 @@ MAX_LINES = 5000
 # 8.5pt (≈9 × 0.95) keeps the dense diagnostic feel while gaining a little
 # vertical room for more lines per screen.
 LOG_POINT_SIZE = 8.5
+ROLE_PROPERTY = QTextFormat.UserProperty + 99
 
 
 def _resolve_mono_font() -> QFont:
@@ -86,13 +87,17 @@ class LogView(QFrame):
         body_fmt = QTextCharFormat()
         body_fmt.setForeground(QColor(color))
         body_fmt.setFont(self._mono_font)
+        body_fmt.setProperty(ROLE_PROPERTY, level)
+
+        stamp_fmt = QTextCharFormat(self._stamp_fmt)
+        stamp_fmt.setProperty(ROLE_PROPERTY, "stamp")
 
         cursor = self._edit.textCursor()
         cursor.movePosition(QTextCursor.End)
 
         stamp = datetime.now().strftime("%H:%M:%S")
         for i, line in enumerate(text.splitlines() or [""]):
-            cursor.insertText(f"{stamp} ", self._stamp_fmt)
+            cursor.insertText(f"{stamp} ", stamp_fmt)
             cursor.insertText(line + "\n", body_fmt)
 
         self._trim()
@@ -106,11 +111,57 @@ class LogView(QFrame):
     def set_scheme(self, scheme: dict) -> None:
         """Apply scheme-derived colors for the timestamp gutter and the
         default body fallback. Called on theme change."""
-        self._stamp_color = scheme.get("outline", "#888888")
+        is_dark = scheme.get("is_dark", False)
+        if is_dark:
+            self._stamp_color = "#94A3B8"  # Slate-400 for high readability in dark mode
+        else:
+            self._stamp_color = "#475569"  # Slate-600 for light mode
         self._stamp_fmt.setForeground(QColor(self._stamp_color))
+        self._apply_theme_to_document()
+
+    def _apply_theme_to_document(self) -> None:
+        """Traverse the entire document and update character formats to the new theme colors."""
+        doc = self._edit.document()
+        cursor = QTextCursor(doc)
+        cursor.beginEditBlock()
+        try:
+            block = doc.begin()
+            while block.isValid():
+                it = block.begin()
+                while not it.atEnd():
+                    fragment = it.fragment()
+                    if fragment.isValid():
+                        fmt = fragment.charFormat()
+                        role = fmt.property(ROLE_PROPERTY)
+                        if role is not None:
+                            new_fmt = QTextCharFormat(fmt)
+                            if role == "stamp":
+                                new_fmt.setForeground(QColor(self._stamp_color))
+                            else:
+                                color_hex = self._level_colors.get(role)
+                                if color_hex:
+                                    new_fmt.setForeground(QColor(color_hex))
+                            
+                            pos = fragment.position()
+                            length = fragment.length()
+                            cursor.setPosition(pos)
+                            cursor.setPosition(pos + length, QTextCursor.KeepAnchor)
+                            cursor.setCharFormat(new_fmt)
+                    it += 1
+                block = block.next()
+        finally:
+            cursor.endEditBlock()
 
     def clear_log(self) -> None:
         self._edit.clear()
+
+    def _copy_to_clipboard(self) -> None:
+        """Copy the full log text to the system clipboard."""
+        from PySide6.QtWidgets import QApplication
+        cb = QApplication.clipboard()
+        if cb is not None:
+            cb.setText(self._edit.toPlainText())
+            self.append("[copied log to clipboard]\n", "info")
 
     # --- internals ---
 
@@ -131,6 +182,12 @@ class LogView(QFrame):
         self._btn_clear.setProperty("variant", "text")
         self._btn_clear.clicked.connect(self.clear_log)
         header.addWidget(self._btn_clear)
+
+        self._btn_copy = QPushButton("Copy")
+        self._btn_copy.setProperty("variant", "text")
+        self._btn_copy.setToolTip("Copy the entire log to the clipboard")
+        self._btn_copy.clicked.connect(self._copy_to_clipboard)
+        header.addWidget(self._btn_copy)
 
         self._btn_save = QPushButton("Save")
         self._btn_save.setProperty("variant", "text")

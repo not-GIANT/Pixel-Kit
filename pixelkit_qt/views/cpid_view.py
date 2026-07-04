@@ -58,6 +58,7 @@ class CpidView(QWidget):
     _show_info = Signal(str, str)   # (title, message)
     _show_error = Signal(str, str)  # (title, message)
     _step_idle = Signal(str)        # (message)
+    _step_updated = Signal(int, int, str)  # (current, total, label)
 
     def __init__(self, executor, app_config, cpid_service, pixel10_service,
                  log, parent=None):
@@ -76,7 +77,8 @@ class CpidView(QWidget):
         # only ever touched from the thread that owns them.
         self._show_info.connect(self._on_show_info)
         self._show_error.connect(self._on_show_error)
-        self._step_idle.connect(self.step_indicator.set_idle)
+        self._step_idle.connect(self._on_step_idle)
+        self._step_updated.connect(self._on_step_updated)
 
     # =====================================================================
     # Layout
@@ -283,6 +285,24 @@ class CpidView(QWidget):
         """GUI-thread slot for the worker → error-dialog signal."""
         dialogs.error(self, title, message)
 
+    def _on_step_updated(self, current: int, total: int, label: str) -> None:
+        """GUI-thread slot to update step indicator and global progress."""
+        self.step_indicator.set_step(current, label)
+        if self.executor.on_progress_set:
+            self.executor.on_progress_set(current / total)
+
+    def _on_step_idle(self, message: str) -> None:
+        """GUI-thread slot to reset step indicator and clear global progress."""
+        self.step_indicator.set_idle(message)
+        if self.executor.on_progress_set:
+            self.executor.on_progress_set(0.0)
+
+    def _make_progress_callback(self):
+        """Helper to create a thread-safe callback for background threads."""
+        def cb(current, total, label=""):
+            self._step_updated.emit(current, total, label)
+        return cb
+
     # =====================================================================
     # Pixel CPID (7-9) handlers
     # =====================================================================
@@ -351,7 +371,9 @@ class CpidView(QWidget):
         self.executor.stop_event.clear()
         self.log.status("--- Starting Pixel CPID Repair Sequence ---\n")
         try:
-            self.cpid_service.run_cpid_repair(imei1, imei2)
+            self.cpid_service.run_cpid_repair(
+                imei1, imei2, progress_callback=self._make_progress_callback()
+            )
             self._show_info.emit(
                 "Success",
                 "IMEI Repair completed. Device is rebooting to normal mode.")
@@ -455,7 +477,7 @@ class CpidView(QWidget):
         try:
             self.pixel10_service.run_full_repair(
                 imei1=imei1, imei2=imei2,
-                progress_callback=None,
+                progress_callback=self._make_progress_callback(),
                 log_func=self.log.info,
                 error_func=lambda m: self.log.error(f"\nERROR: {m}\n"),
             )

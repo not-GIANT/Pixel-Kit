@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QProgressBar,
 
 
 class StepIndicator(QFrame):
-    """`[n/total] step_label` with a determinate progress bar."""
+    """`[n/total] step_label` readout."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -21,25 +21,17 @@ class StepIndicator(QFrame):
         self._total = 0
         self._current = 0
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 12, 16, 14)
-        layout.setSpacing(8)
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
+        layout.setSpacing(12)
 
-        top = QHBoxLayout()
         self._counter = QLabel("Idle")
         self._counter.setProperty("role", "label-m")
-        top.addWidget(self._counter)
-        top.addStretch()
-        self._label = QLabel("")
-        self._label.setProperty("role", "caption")
-        top.addWidget(self._label, 1, Qt.AlignRight)
-        layout.addLayout(top)
+        layout.addWidget(self._counter)
 
-        self._bar = QProgressBar()
-        self._bar.setRange(0, 100)
-        self._bar.setValue(0)
-        self._bar.setTextVisible(False)
-        layout.addWidget(self._bar)
+        self._label = QLabel("")
+        self._label.setProperty("role", "body-m")
+        layout.addWidget(self._label, 1)
 
     # --- public API ---
 
@@ -47,15 +39,12 @@ class StepIndicator(QFrame):
         """Set the total step count for an upcoming sequence."""
         self._total = total_steps
         self._current = 0
-        self._bar.setRange(0, total_steps)
-        self._bar.setValue(0)
         self._counter.setText(f"[0/{total_steps}]")
         self._label.setText("Ready to start")
 
     def set_step(self, step: int, label: str) -> None:
         """Advance to step N (1-based) with a human label."""
         self._current = step
-        self._bar.setValue(step)
         self._counter.setText(f"[{step}/{self._total}]")
         self._label.setText(label)
 
@@ -63,7 +52,5 @@ class StepIndicator(QFrame):
         """Reset to an idle state with an optional message."""
         self._total = 0
         self._current = 0
-        self._bar.setRange(0, 100)
-        self._bar.setValue(0)
         self._counter.setText(message)
         self._label.setText("")

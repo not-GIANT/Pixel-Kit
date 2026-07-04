@@ -1,0 +1,7 @@
+# Pixel Kit runtime dependencies (source-run).
+# The standalone .exe bundles these via PyInstaller; see "Pixel Kit.spec".
+PySide6>=6.6
+material-color-utilities
+
+# Build-time only (uncomment to build the standalone executable):
+# pyinstaller>=6.0

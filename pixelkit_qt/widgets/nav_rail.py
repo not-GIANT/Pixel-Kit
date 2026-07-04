@@ -26,9 +26,10 @@ class NavItem(QToolButton):
     QButtonGroup + setChecked.
     """
 
-    def __init__(self, icon: QIcon, label: str, index: int, parent=None):
+    def __init__(self, icon: QIcon, label: str, index: int, symbolic_name: str = "", parent=None):
         super().__init__(parent)
         self.index = index
+        self.symbolic_name = symbolic_name
         self.setCheckable(True)
         self.setAutoRaise(True)  # flat by default, raised on hover/check
         self.setCursor(Qt.PointingHandCursor)
@@ -63,10 +64,10 @@ class NavRail(QFrame):
         layout.setSpacing(4)
         layout.addStretch()
 
-    def add_item(self, icon, label: str) -> int:
+    def add_item(self, icon, label: str, symbolic_name: str = "") -> int:
         """Append a destination. `icon` may be a QIcon or None. Returns index."""
         icon_obj = icon if isinstance(icon, QIcon) else QIcon()
-        item = NavItem(icon_obj, label, len(self._items))
+        item = NavItem(icon_obj, label, len(self._items), symbolic_name)
         item.clicked.connect(lambda _=False, i=item.index: self.select(i))
         self._group.addButton(item)
         self._items.append(item)
@@ -79,3 +80,10 @@ class NavRail(QFrame):
         if 0 <= index < len(self._items):
             self._items[index].setChecked(True)
             self.page_changed.emit(index)
+
+    def update_icons(self) -> None:
+        """Reload all navigation rail icons with the current theme colors."""
+        from ..theme import icons
+        for item in self._items:
+            if item.symbolic_name:
+                item.setIcon(icons.icon_for(item.symbolic_name))

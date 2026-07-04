@@ -11,8 +11,9 @@ Material Symbols if the font is bundled in Phase 5 packaging).
 """
 from __future__ import annotations
 
-from PySide6.QtCore import QPointF, Qt
+from PySide6.QtCore import QByteArray, QPointF, Qt
 from PySide6.QtGui import QIcon, QPixmap, QColor, QPainter, QPen, QBrush, QPolygonF
+from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication, QStyle
 
 # Symbolic name → QStyle.SP_* enum value. Add new mappings here.
@@ -21,6 +22,7 @@ _ICON_MAP = {
     "nav-adb":      QStyle.SP_ComputerIcon,        # device / computer
     "nav-fastboot": QStyle.SP_BrowserReload,        # reboot/refresh feel
     "nav-flashing": QStyle.SP_DriveHDIcon,          # disk / partition
+    "nav-firmware": QStyle.SP_DriveFDIcon,           # firmware image / media
     "nav-cpid":     QStyle.SP_FileDialogContentsView,  # detailed repair view
     # Common actions
     "refresh":      QStyle.SP_BrowserReload,
@@ -111,7 +113,6 @@ def draw_social_icon(name: str, color_hex: str, size: int = 20) -> QIcon:
         painter.drawEllipse(7, 7, 6, 6)
         painter.setBrush(QBrush(color))
         painter.drawEllipse(13, 5, 2, 2)
-
     else:
         painter.end()
         return QIcon()
@@ -120,6 +121,47 @@ def draw_social_icon(name: str, color_hex: str, size: int = 20) -> QIcon:
     icon = QIcon()
     icon.addPixmap(pixmap)
     return icon
+
+
+# ---------------------------------------------------------------------------
+# Material Design SVG icon files for navigation rail destinations.
+# Each .svg in nav_icons/ uses fill="currentColor" so we can inject any color
+# at render-time without modifying the file.
+# ---------------------------------------------------------------------------
+_NAV_ICONS_DIR = __file__.replace("icons.py", "nav_icons")
+
+
+def draw_nav_icon_pixmap(name: str, color_hex: str, size: int) -> QPixmap:
+    """Load a per-icon SVG file, inject the theme color, and render to a pixmap.
+
+    SVG files live in pixelkit_qt/theme/nav_icons/<name>.svg and use
+    fill="currentColor" as their fill placeholder. We do a simple string
+    replace so the rendered result matches the active M3 color exactly.
+    QSvgRenderer handles anti-aliasing and scaling — the output is crisp
+    at any DPI.
+    """
+    import os
+    svg_path = os.path.join(_NAV_ICONS_DIR, f"{name}.svg")
+    if not os.path.isfile(svg_path):
+        return QPixmap()
+
+    with open(svg_path, "r", encoding="utf-8") as f:
+        svg_text = f.read()
+
+    # Inject theme color: replace the fill="currentColor" placeholder.
+    colored_svg = svg_text.replace("currentColor", color_hex)
+
+    svg_bytes = QByteArray(colored_svg.encode("utf-8"))
+    pixmap = QPixmap(size, size)
+    pixmap.fill(Qt.transparent)
+    renderer = QSvgRenderer(svg_bytes)
+    if not renderer.isValid():
+        return QPixmap()
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.Antialiasing)
+    renderer.render(painter)
+    painter.end()
+    return pixmap
 
 
 def icon_for(name: str, size: int = 24, color: str | None = None) -> QIcon:
@@ -131,6 +173,22 @@ def icon_for(name: str, size: int = 24, color: str | None = None) -> QIcon:
             scheme = active_scheme()
             color = scheme.get("on_primary_container", "#ffffff") if scheme else "#ffffff"
         return draw_social_icon(social_name, color, size)
+
+    if name.startswith("nav-"):
+        from ._state import active_scheme
+        scheme = active_scheme()
+        normal_color = scheme.get("on_surface_variant", "#888888") if scheme else "#888888"
+        active_color = scheme.get("primary", "#0061e6") if scheme else "#0061e6"
+        
+        pix_normal = draw_nav_icon_pixmap(name, normal_color, size)
+        pix_active = draw_nav_icon_pixmap(name, active_color, size)
+        
+        icon = QIcon()
+        icon.addPixmap(pix_normal, QIcon.Normal, QIcon.Off)
+        icon.addPixmap(pix_active, QIcon.Normal, QIcon.On)
+        icon.addPixmap(pix_active, QIcon.Active, QIcon.Off)
+        icon.addPixmap(pix_active, QIcon.Active, QIcon.On)
+        return icon
 
     app = QApplication.instance()
     if app is None:

@@ -7,6 +7,7 @@ from .m3_widgets import (ActionCard, FitScrollArea, LabeledField,
 from .partition_list import PartitionList, PartitionRow
 from .step_indicator import StepIndicator
 from .about_dialog import AboutDialog, show_about
+from .install_drivers_dialog import InstallDriversDialog
 from . import dialogs
 
 __all__ = [
@@ -17,5 +18,7 @@ __all__ = [
     "PartitionList", "PartitionRow",
     "StepIndicator",
     "AboutDialog", "show_about",
+    "InstallDriversDialog",
     "dialogs",
 ]
+

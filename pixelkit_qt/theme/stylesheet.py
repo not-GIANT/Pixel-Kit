@@ -114,7 +114,9 @@ QPushButton {{
     color: {on_primary};
     border: 1px solid transparent;
     border-radius: {sm}px;
-    padding: 6px 14px;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-weight: 500;
 }}
 QPushButton:hover {{
     background-color: {primary};
@@ -137,7 +139,9 @@ QPushButton[variant="outlined"] {{
     color: {primary};
     border: 1px solid {outline};
     border-radius: {sm}px;
-    padding: 6px 14px;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-weight: 500;
 }}
 QPushButton[variant="outlined"]:hover {{
     background-color: {_with_alpha(primary, 0.08)};
@@ -152,7 +156,9 @@ QPushButton[variant="text"] {{
     background-color: transparent;
     color: {primary};
     border: 1px solid transparent;
-    padding: 6px 10px;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-weight: 500;
 }}
 QPushButton[variant="text"]:hover {{
     background-color: {_with_alpha(primary, 0.08)};
@@ -166,7 +172,9 @@ QPushButton[variant="tonal"] {{
     color: {on_primary_container};
     border: 1px solid transparent;
     border-radius: {sm}px;
-    padding: 6px 14px;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-weight: 500;
 }}
 QPushButton[variant="tonal"]:hover {{
     border: 1px solid {hover_on_primary};
@@ -178,7 +186,9 @@ QPushButton[variant="danger"] {{
     color: {on_error};
     border: 1px solid transparent;
     border-radius: {sm}px;
-    padding: 6px 14px;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-weight: 500;
 }}
 QPushButton[variant="danger"]:hover {{
     border: 1px solid {_with_alpha(on_error, 0.12)};

@@ -83,12 +83,12 @@ class DeviceMonitor:
             <serial>\tdevice
         or:
             <serial>\tfastboot
-        The first line is the header; subsequent lines that contain the
-        keyword and a tab separator carry a serial.
+        Lines that contain the keyword and a tab separator carry a serial.
+        The header line (for ADB) won't have a tab, so we don't need to skip lines.
         """
         if not output:
             return ""
-        for line in output.strip().splitlines()[1:]:
+        for line in output.strip().splitlines():
             if keyword in line and "\t" in line:
                 return line.split("\t")[0].strip()
         return ""

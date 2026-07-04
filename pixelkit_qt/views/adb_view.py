@@ -24,6 +24,9 @@ from ..widgets import (ActionCard, FitScrollArea, LabeledField,
                        SectionTitle, dialogs, equalize_card_heights)
 
 
+REFLOW_THRESHOLD = 620  # px — switch from 2-col to 1-col below this width
+
+
 class AdbView(QWidget):
     """The ADB operations page."""
 
@@ -35,6 +38,8 @@ class AdbView(QWidget):
         # heights after layout (tallest card wins → every card the same height,
         # borders aligned across the whole grid, not just per row).
         self._cards: list = []
+        self._current_cols = 0
+        self._scroll: "FitScrollArea | None" = None  # set in _build_ui
         self._build_ui()
 
     # =====================================================================
@@ -57,20 +62,19 @@ class AdbView(QWidget):
         host = QWidget()
         self._grid = QGridLayout(host)
         self._grid.setSpacing(10)
-        # 2-column layout of cards
-        self._grid.setColumnStretch(0, 1)
-        self._grid.setColumnStretch(1, 1)
         scroll.setWidget(host)
         outer.addWidget(scroll, 1)
+        self._scroll = scroll
 
-        # Build the four cards into the grid. Order matches the ADB workflow:
-        #   row 0: Device Tools | Apps & Files
-        #   row 1: Server & Net | Power
+        # Build the four cards. Order matches the ADB workflow:
+        #   wide:   row 0: Device Tools | Apps & Files
+        #           row 1: Server & Net  | Power
+        #   narrow: single column, same reading order
         # Device Tools (device-info commands) first, Power (reboots) last.
-        self._build_device_tools_card(0, 0)
-        self._build_apps_files_card(0, 1)
-        self._build_server_net_card(1, 0)
-        self._build_power_card(1, 1)
+        self._build_device_tools_card()
+        self._build_apps_files_card()
+        self._build_server_net_card()
+        self._build_power_card()
 
         # Each card now ends in an elastic spacer: when the card is stretched
         # to the section's shared height, the slack lands below the buttons so
@@ -78,32 +82,95 @@ class AdbView(QWidget):
         for card in self._cards:
             card.append_bottom_spacer()
 
-    def _add_card(self, card, row: int, col: int) -> None:
-        # NOTE: no Qt.AlignTop — a top alignment would clamp the cell to the
-        # card's natural height and defeat the section-wide height equalization
-        # (the card must be free to fill the cell vertically to match siblings).
-        self._grid.addWidget(card, row, col)
+        # Hook the scroll area's viewport so we reflow exactly when the visible
+        # width changes — not when AdbView itself resizes (which can be before
+        # Qt has propagated the new size down to the viewport).
+        scroll.viewport().installEventFilter(self)
+
+    def _add_card(self, card) -> None:
         self._cards.append(card)
 
+    def _reflow_grid(self, force: bool = False) -> None:
+        """Place cards in the grid according to the current viewport width.
+
+        Switches between 2-column (wide) and 1-column (narrow) layouts when
+        the view crosses REFLOW_THRESHOLD px. The reflow is a no-op when the
+        column count hasn't changed — this keeps resize overhead minimal.
+
+        Uses the FitScrollArea's viewport width rather than self.width() because
+        the grid lives inside the scroll area's host widget which is sized to the
+        viewport, not to the outer page widget.
+        """
+        if self._scroll is not None:
+            vw = self._scroll.viewport().width()
+        else:
+            vw = self.width()
+        cols = 2
+        if not force and cols == self._current_cols:
+            return
+        self._current_cols = cols
+
+        # Remove every card from the grid without destroying it.
+        for card in self._cards:
+            self._grid.removeWidget(card)
+            card.setMinimumHeight(0)  # reset equalization
+
+        # Clear column stretches and set new ones.
+        for c in range(2):
+            self._grid.setColumnStretch(c, 0)
+        for c in range(cols):
+            self._grid.setColumnStretch(c, 1)
+
+        # Re-insert cards in reading order.
+        for i, card in enumerate(self._cards):
+            if cols == 2:
+                self._grid.addWidget(card, i // 2, i % 2)
+            else:
+                self._grid.addWidget(card, i, 0)
+
+    def eventFilter(self, obj, event):
+        """Reflow cards when the scroll viewport actually changes size."""
+        from PySide6.QtCore import QEvent
+        if obj is self._scroll.viewport() and event.type() == QEvent.Resize:
+            self._reflow_grid()
+            QTimer.singleShot(0, lambda: equalize_card_heights(self._cards) if self._current_cols == 2 else None)
+        return super().eventFilter(obj, event)
+
+
     def showEvent(self, event):
-        """Re-equalize card heights once the cards have been laid out and know
-        their real size hints. Re-run on every show so a theme toggle / window
-        resize (which can change text wrapping and thus card heights) keeps the
-        borders aligned."""
+        """Reflow cards (initial or after tab-switch) and re-equalize heights."""
         super().showEvent(event)
-        QTimer.singleShot(0, lambda: equalize_card_heights(self._cards))
+        # Defer so Qt has finished laying out the scroll area and the viewport
+        # has its real width before we decide 1-col vs 2-col.
+        QTimer.singleShot(0, self._do_initial_reflow)
+
+    def _do_initial_reflow(self):
+        self._reflow_grid(force=(self._current_cols == 0))
+        if self._current_cols == 2:
+            equalize_card_heights(self._cards)
 
     def resizeEvent(self, event):
-        """Re-equalize card heights when the window is resized to adapt to new
-        text wrapping and layout constraints."""
+        """Reflow and re-equalize when the window is resized (fallback path).
+        The viewport eventFilter is the primary trigger; this catches edge cases
+        where AdbView resizes but the viewport event hasn't fired yet."""
         super().resizeEvent(event)
-        equalize_card_heights(self._cards)
+        # Use singleShot so the viewport has settled before we measure it.
+        QTimer.singleShot(0, self._do_resize_reflow)
+
+    def _do_resize_reflow(self):
+        prev_cols = self._current_cols
+        self._reflow_grid()
+        if self._current_cols == 2:
+            equalize_card_heights(self._cards)
+        elif prev_cols == 2:
+            for card in self._cards:
+                card.setMinimumHeight(0)
 
     # ---------------------------------------------------------------------
     # Card: Power (reboot submenu — no longer a hidden toggle, always visible)
     # ---------------------------------------------------------------------
 
-    def _build_power_card(self, row: int, col: int) -> None:
+    def _build_power_card(self) -> None:
         card = ActionCard("Power", "Reboot the connected device", columns=2)
         self._reboot_btn(card, "System", "Reboot to Android OS",
                          lambda: self._adb(["reboot"], "Reboot System"))
@@ -118,13 +185,13 @@ class AdbView(QWidget):
                                   "DANGEROUS: reboot to emergency download")
         btn_edl.clicked.connect(self._reboot_edl)
         card.add_button(btn_edl)
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # ---------------------------------------------------------------------
     # Card: Apps & Files
     # ---------------------------------------------------------------------
 
-    def _build_apps_files_card(self, row: int, col: int) -> None:
+    def _build_apps_files_card(self) -> None:
         card = ActionCard("Apps & Files", "Install, transfer, sideload",
                           columns=2)
         self._action_btn(card, "Install APK", "Select and install an APK",
@@ -139,13 +206,13 @@ class AdbView(QWidget):
                          self.adb_push)
         self._action_btn(card, "Pull File", "Pull a file from the device",
                          self.adb_pull)
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # ---------------------------------------------------------------------
     # Card: Server & Network
     # ---------------------------------------------------------------------
 
-    def _build_server_net_card(self, row: int, col: int) -> None:
+    def _build_server_net_card(self) -> None:
         card = ActionCard("Server & Network", "ADB server & wireless",
                           columns=2)
         self._action_btn(card, "Start Server", "Start the ADB server",
@@ -159,13 +226,13 @@ class AdbView(QWidget):
                          lambda: self._adb(["tcpip", "5555"], "TCP/IP 5555"))
         self._action_btn(card, "Connect", "Connect to a device over Wi-Fi",
                          self.adb_connect, variant="tonal")
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # ---------------------------------------------------------------------
     # Card: Device Tools
     # ---------------------------------------------------------------------
 
-    def _build_device_tools_card(self, row: int, col: int) -> None:
+    def _build_device_tools_card(self) -> None:
         card = ActionCard("Device Tools", "Shell, mirroring, low-level ops",
                           columns=2)
         self._action_btn(card, "List Devices", "List connected ADB devices",
@@ -183,7 +250,7 @@ class AdbView(QWidget):
         self._action_btn(card, "Custom Command",
                          "Run an arbitrary adb command",
                          self.custom_command, variant="outlined")
-        self._add_card(card, row, col)
+        self._add_card(card)
 
     # =====================================================================
     # Button factory helpers
@@ -293,11 +360,28 @@ class AdbView(QWidget):
 
     def start_scrcpy(self) -> None:
         scrcpy = self.executor.cached_paths.get("scrcpy")
-        if scrcpy:
-            subprocess.Popen([scrcpy], creationflags=WIN_CREATION_FLAGS)
-        else:
+        if not scrcpy:
             dialogs.error(self, "File Not Found",
                           "scrcpy was not found in platform-tools.")
+            return
+
+        # scrcpy shells out to `adb` to push its server and forward the video
+        # socket. By default it uses whatever `adb` is on the system PATH — and
+        # if that differs in version from the adb the app polls with (the
+        # bundled platform-tools one), the two fight over the single adb server:
+        # scrcpy starts its server, the device monitor's adb kills+restarts a
+        # different-version server 2s later, and scrcpy's connection drops
+        # ("Device disconnected"). Force scrcpy onto the SAME bundled adb via
+        # the ADB env var so both sides share one server version.
+        env = os.environ.copy()
+        adb = self.executor.cached_paths.get("adb")
+        if adb:
+            env["ADB"] = adb
+        # Run from platform-tools so scrcpy always finds its co-located
+        # scrcpy-server, regardless of the app's working directory.
+        cwd = os.path.dirname(scrcpy)
+        subprocess.Popen([scrcpy], creationflags=WIN_CREATION_FLAGS,
+                         env=env, cwd=cwd)
 
     def reset_efs(self) -> None:
         if not dialogs.confirm(
@@ -336,7 +420,7 @@ class AdbView(QWidget):
         self.executor.run_multiple_commands(commands, task_name="Enable Diag Mode")
 
     def custom_command(self) -> None:
-        """Free-form adb command. Args are shlex-split and 'adb' prefix stripped."""
+        """Free-form adb/fastboot command. Runs fastboot if explicitly requested."""
         import shlex
         raw = dialogs.prompt_text(
             self, "Custom ADB Command",
@@ -347,8 +431,15 @@ class AdbView(QWidget):
         parts = shlex.split(raw)
         if not parts:
             return
-        if parts[0].lower() in ("adb", "fastboot"):
+
+        tool = "adb"
+        if parts[0].lower() == "adb":
+            tool = "adb"
             parts = parts[1:]
+        elif parts[0].lower() == "fastboot":
+            tool = "fastboot"
+            parts = parts[1:]
+
         if not parts:
             return
-        self._adb(parts, f"Custom: {' '.join(parts[:3])}")
+        self.executor.run_command_threaded(tool, parts, task_name=f"Custom: {tool} {' '.join(parts[:2])}")

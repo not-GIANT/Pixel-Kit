@@ -32,7 +32,7 @@ from ..theme import icons, stylesheet, tokens
 # Application identity (single source of truth — keep in sync with app.py)
 # ---------------------------------------------------------------------------
 APP_NAME = "Pixel Kit"
-APP_VERSION = "v3.7 (Qt/M3)"
+APP_VERSION = "v3.9 (Qt/M3)"
 APP_BUILD = (
     f"PySide6 / Material 3 rebuild \u00b7 Python {sys.version.split()[0]}")
 APP_COPYRIGHT = "\u00a9 2026 GIANT. All rights reserved."
@@ -53,6 +53,11 @@ FEATURES: list[tuple[str, str, str, list[str]]] = [
         "Secure NVRAM sync via persistent root shell",
         "Legal safety gates and pre-flight root checks",
         "Firmware prerequisites warning before any repair runs",
+    ]),
+    ("Driver Management", "primary_container", "open", [
+        "One-click ADB & Fastboot driver installer",
+        "Automatic mode: detects and installs required drivers silently",
+        "Manual mode: browse and install driver packages manually",
     ]),
     ("Device Detection", "tertiary_container", "refresh", [
         "Intelligent two-tier device polling (cheap connect probe + on-change property fetch)",
@@ -98,10 +103,28 @@ FEATURES: list[tuple[str, str, str, list[str]]] = [
 ]
 
 # ---------------------------------------------------------------------------
-# Changelog content (legacy history + the 3.7 Qt release)
+# Changelog content (legacy history + the 3.9 Qt release)
 # ---------------------------------------------------------------------------
 # (version, date, [(tag, change), ...])  — tag ∈ NEW/IMPROVED/FIXED/ADDED/etc.
 CHANGELOG: list[tuple[str, str, list[tuple[str, str]]]] = [
+    ("3.9.0", "July 2026", [
+        ("NEW",      "Firmware Flashing page — full factory image (ZIP) flashing via fastboot flash-all"),
+        ("NEW",      "ZIP validation & manifest parser — reads flash-all.bat/sh for partition order, wipe flag, slot logic and slot-suffix"),
+        ("NEW",      "Pre-flight safety gate — validates codename match and bootloader lock state before flashing"),
+        ("NEW",      "Flashing options panel — per-device controls for wipe, disable-verity, disable-verification, force-flash and custom extra flags"),
+        ("NEW",      "Main progress bar integration — firmware flash progress streams into the existing Pixel Kit progress bar (no secondary bar)"),
+        ("NEW",      "High-quality Material Design SVG nav icons — each rail entry now uses a proper crisp filled MD icon (phone_android, bolt, system_update, memory, security)"),
+        ("IMPROVED", "Nav icons are fully theme-aware — colors update instantly on light/dark toggle via M3 on_surface_variant / primary roles"),
+        ("IMPROVED", "SVG icons stored as standalone files in pixelkit_qt/theme/nav_icons/ — swap any icon without touching Python code"),
+        ("IMPROVED", "Flashing options card and controls are hidden until a valid firmware ZIP is selected and processed"),
+        ("FIXED",    "Navigation rail icons were indistinguishable — each destination now has a semantically distinct icon shape"),
+    ]),
+    ("3.8.0", "July 2026", [
+        ("NEW", "ADB / Fastboot USB driver installer"),
+        ("FIXED", "Screen mirroring dropping instantly due to an adb server version conflict (scrcpy now uses the bundled adb)"),
+        ("FIXED", "\"System cannot find the file specified\" errors from device polling when fastboot was missing"),
+        ("IMPROVED", "Repository cleanup — removed ~150MB of legacy bundled runtime and build artifacts"),
+    ]),
     ("3.7.0", "June 2026", [
         ("FIXED", "Fastboot/ADB operations cards overlapping on startup (delayed equalization & layout filter refit)"),
         ("FIXED", "Theme toggle menu action label incorrectly showing the current theme state"),

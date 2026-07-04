@@ -200,22 +200,6 @@ python "Pixel Kit.py"
 
 ---
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. **Fork** this repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m "feat: add my feature"`
-4. Push to the branch: `git push origin feature/my-feature`
-5. Open a **Pull Request**
-
-<p align="center">
-  <img src="assets/divider.svg" width="100%"/>
-</p>
-
----
-
 <p align="center">
   <br/>
   <img src="icon.png" width="60" alt="Pixel Kit Icon"/>

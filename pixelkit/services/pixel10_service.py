@@ -60,42 +60,42 @@ class Pixel10Service:
         """Run the full Pixel 10 CPID repair workflow (blocks until done)."""
         self._log("[1/8] Detecting device\u2026\n", "status")
         if progress_callback:
-            progress_callback(1, 8)
+            progress_callback(1, 8, "Detecting device")
         product, model = self._detect_device_model()
 
         self._log("[2/8] Creating device backup\u2026\n", "status")
         if progress_callback:
-            progress_callback(2, 8)
+            progress_callback(2, 8, "Creating device backup")
         backup_dir = self._create_backup(product, model)
 
         self._log("[3/8] Pulling and patching devinfo\u2026\n", "status")
         if progress_callback:
-            progress_callback(3, 8)
+            progress_callback(3, 8, "Pulling and patching devinfo")
         mod_devinfo = self._patch_devinfo(imei1, imei2)
 
         self._log("[4/8] Flashing devinfo + factory bootmode\u2026\n", "status")
         if progress_callback:
-            progress_callback(4, 8)
+            progress_callback(4, 8, "Flashing devinfo + factory bootmode")
         self._flash_devinfo(mod_devinfo)
 
         self._log("[5/8] Sending AT commands to modem\u2026\n", "status")
         if progress_callback:
-            progress_callback(5, 8)
+            progress_callback(5, 8, "Sending AT commands to modem")
         self._send_at_commands(imei1, imei2)
 
         self._log("[6/8] Refreshing modem state\u2026\n", "status")
         if progress_callback:
-            progress_callback(6, 8)
+            progress_callback(6, 8, "Refreshing modem state")
         self._refresh_modem()
 
         self._log("[7/8] Synchronising SHA hash\u2026\n", "status")
         if progress_callback:
-            progress_callback(7, 8)
+            progress_callback(7, 8, "Synchronising SHA hash")
         self._perform_sha_ops()
 
         self._log("[8/8] Finalising device state\u2026\n", "status")
         if progress_callback:
-            progress_callback(8, 8)
+            progress_callback(8, 8, "Finalising device state")
         self._finalize()
 
         # Write operation log

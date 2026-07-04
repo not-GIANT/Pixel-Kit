@@ -12,4 +12,4 @@ Launch with:
 from .app import launch, MainWindow
 
 __all__ = ["launch", "MainWindow"]
-__version__ = "3.7.0-qt-m3"
+__version__ = "3.9.0-qt-m3"

@@ -46,12 +46,28 @@ class CpidService:
     def backup_critical_files(self, is_auto=False):
         """Backup critical device partitions (efs, devinfo, cpsha)."""
         try:
-            self._log(f"Fetching device serial...\n")
+            self._log("Fetching device serial...\n")
             serial_proc = self.executor.execute_tool_command(
                 "adb", ["get-serialno"], combine_output=True
             )
             serial_out, _ = self.executor.communicate_with_timeout(serial_proc, timeout=5)
-            device_serial = serial_out.strip() if serial_out and serial_out.strip() else "Unknown_Device"
+            raw_serial = serial_out.strip() if serial_out else ""
+            # Guard: adb prints "error: no devices/emulators found" when nothing is
+            # connected. That string is an invalid path component on Windows and would
+            # cause an OSError when trying to create the backup directory. Treat any
+            # adb error line, empty output, or multi-word output (no serial is ever
+            # multi-word) as "no device present".
+            if (raw_serial
+                    and not raw_serial.lower().startswith("error")
+                    and "\n" not in raw_serial
+                    and " " not in raw_serial):
+                device_serial = raw_serial
+            else:
+                # No device — log the error and bail out immediately.
+                msg = raw_serial if raw_serial else "(no output)"
+                self._log(f"No device connected (adb get-serialno returned: {msg!r}).\n"
+                          f"Connect a device and try again.\n", "error")
+                return False
 
             backup_dir = self.config.persistent_dir / "backups" / device_serial
             backup_dir.mkdir(parents=True, exist_ok=True)
@@ -72,20 +88,40 @@ class CpidService:
                 return True
 
             self._log(f"Creating backup in {backup_dir.name}...\n")
+            failed_files = []
             for fname, path in files_to_backup:
                 self._log(f"Backing up {fname}...\n")
+                # Step 1: copy the partition to /data/local/tmp on the device.
                 if "cpsha" in fname:
-                    self.executor.run_command(
+                    rc1 = self.executor.run_command(
                         "adb", ["shell", "su", "-c", f"cat {path} > /data/local/tmp/{fname}"]
                     )
                 else:
-                    self.executor.run_command(
+                    rc1 = self.executor.run_command(
                         "adb", ["shell", "su", "-c", f"dd if={path} of=/data/local/tmp/{fname}"]
                     )
-                self.executor.run_command(
+                if rc1 != 0:
+                    self._log(f"Failed to read {fname} from device (rc={rc1}).\n", "error")
+                    failed_files.append(fname)
+                    continue
+
+                # Step 2: pull the file to the host.
+                rc2 = self.executor.run_command(
                     "adb", ["pull", f"/data/local/tmp/{fname}",
                             str((backup_dir / fname).absolute())]
                 )
+                if rc2 != 0:
+                    self._log(f"Failed to pull {fname} from device (rc={rc2}).\n", "error")
+                    failed_files.append(fname)
+
+            if failed_files:
+                self._log(
+                    f"Backup incomplete — {len(failed_files)} file(s) could not be saved: "
+                    f"{', '.join(failed_files)}.\n"
+                    f"Ensure the device is connected with root access and try again.\n",
+                    "error"
+                )
+                return False
 
             if is_auto:
                 self._copy_backup_to_resources(backup_dir)
@@ -173,7 +209,7 @@ class CpidService:
 
     # --- CPID 10-step repair ---
 
-    def run_cpid_repair(self, imei1, imei2):
+    def run_cpid_repair(self, imei1, imei2, progress_callback=None):
         """Execute the full 10-step CPID IMEI repair sequence.
 
         This method is designed to run in a background thread.
@@ -185,11 +221,15 @@ class CpidService:
 
         # Step 1: Pre-flight checks
         self._log("[Step 1/10] Pre-flight checks...\n", "status")
+        if progress_callback:
+            progress_callback(1, 10, "Pre-flight checks")
         if not self.is_root_granted():
             raise RuntimeError("Root access is required. Please grant 'su' permission on the device.")
 
         # Step 2: Backup
         self._log("[Step 2/10] Handling device backups...\n", "status")
+        if progress_callback:
+            progress_callback(2, 10, "Handling device backups")
         success = self.backup_critical_files(is_auto=True)
         if not success:
             raise RuntimeError("Backup process failed or was aborted.")
@@ -198,6 +238,8 @@ class CpidService:
 
         # Step 3: Patch devinfo
         self._log("[Step 3/10] Patching devinfo binary...\n", "status")
+        if progress_callback:
+            progress_callback(3, 10, "Patching devinfo binary")
         cpid_logic.patch_devinfo(
             str(devinfo_path.absolute()),
             str(mod_devinfo_path.absolute()),
@@ -207,6 +249,8 @@ class CpidService:
 
         # Step 4: Flash in fastboot
         self._log("[Step 4/10] Rebooting to Bootloader for flashing...\n", "status")
+        if progress_callback:
+            progress_callback(4, 10, "Rebooting to Bootloader")
         self.executor.run_command("adb", ["reboot", "bootloader"])
         self._wait_for_fastboot()
         self._log("Flashing modified devinfo...\n")
@@ -214,27 +258,39 @@ class CpidService:
 
         # Step 5: Set factory bootmode
         self._log("[Step 5/10] Setting Factory Bootmode...\n", "status")
+        if progress_callback:
+            progress_callback(5, 10, "Setting Factory Bootmode")
         self.executor.run_command("fastboot", ["oem", "set_config", "bootmode", "factory"])
         self.executor.run_command("fastboot", ["reboot"])
 
         # Step 6: Wait for factory mode ADB
         self._log("[Step 6/10] Waiting for device to boot in Factory Mode...\n", "status")
+        if progress_callback:
+            progress_callback(6, 10, "Waiting for Factory Mode ADB")
         self._wait_for_adb()
 
         # Step 7: AT commands (FIXED: uses drain-thread to prevent deadlock)
         self._log("[Step 7/10] Sending AT commands to modem...\n", "status")
+        if progress_callback:
+            progress_callback(7, 10, "Sending AT commands to modem")
         self._send_at_commands(imei1, imei2)
 
         # Step 8: Modem refresh
         self._log("[Step 8/10] Refreshing modem state...\n", "status")
+        if progress_callback:
+            progress_callback(8, 10, "Refreshing modem state")
         self._refresh_modem()
 
         # Step 9: SHA fix via lexipwn
         self._log("[Step 9/10] Synchronizing SHA hash with lexipwn...\n", "status")
+        if progress_callback:
+            progress_callback(9, 10, "Synchronizing SHA hash")
         self._run_lexipwn()
 
         # Step 10: Finalize
         self._log("[Step 10/10] Finalizing device state...\n", "status")
+        if progress_callback:
+            progress_callback(10, 10, "Finalizing device state")
         self._finalize_repair()
 
         self._log("\n--- CPID Repair Sequence Completed Successfully! ---\n", "status")
